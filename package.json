@@ -20,7 +20,7 @@
   },
   "scripts": {
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d build",
+    "deploy": "gh-pages -d build --repo https://github.com/mohamedsaber55/Weather-App.git",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
