@@ -1,0 +1,81 @@
+@import url("https://fonts.googleapis.com/css2?family=Alegreya+Sans:wght@300;400;700&family=Cairo:wght@300;400;600;700&family=Montserrat+Alternates:wght@300;400&family=Poppins:wght@100;200;300;500;600;700&family=Roboto:wght@300;400;500;700&family=Ubuntu:wght@300;400;700&display=swap");
+
+// font-family: 'Alegreya Sans', sans-serif;
+// font-family: 'Cairo', sans-serif;
+// font-family: 'Montserrat Alternates', sans-serif;
+// font-family: 'Poppins', sans-serif;
+// font-family: 'Roboto', sans-serif;
+// font-family: 'Ubuntu', sans-serif;
+
+$dark-bg: #0b131e;
+$dark-div: #202b3b;
+$light-color: #fffafa;
+
+body {
+  background-color: $dark-bg;
+  color: $light-color;
+  font-family: "Poppins", sans-serif;
+}
+
+a {
+  color: $light-color !important;
+}
+
+.small {
+  font-size: 14px;
+}
+
+.navbar {
+  background-color: $dark-div !important;
+  box-shadow: 0px 0px 20px rgb(0, 0, 0);
+  margin-bottom: 24px;
+  position: sticky;
+
+  .navIcon {
+    width: 60px;
+    height: 60px;
+  }
+}
+
+.box {
+  background-color: $dark-div !important;
+  box-shadow: 0px 0px 5px 5px rgba(0, 0, 0, 0.3);
+  border-radius: 20px;
+}
+
+// Forecast container
+.forecast-container {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  display: flex;
+  gap: 16px;
+  overflow-x: scroll;
+
+  .forecast-item {
+    flex: 0 0 calc(25% - 16px);
+    max-width: calc(25% - 16px);
+    text-align: center;
+  }
+}
+@media (max-width: 767px) {
+  .forecast-container {
+    .forecast-item {
+      flex: 0 0 calc(50% - 16px);
+      max-width: calc(50% - 16px);
+    }
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .forecast-container {
+    .forecast-item {
+      flex: 0 0 calc(33.333% - 16px);
+      max-width: calc(33.333% - 16px);
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+    "workbench.colorCustomizations": {
+        "activityBar.background": "#222270",
+        "titleBar.activeBackground": "#30309D",
+        "titleBar.activeForeground": "#FCFCFE"
+    },
+    "cSpell.words": [
+        "feelslike",
+        "forecastday",
+        "suef"
+    ]
+}
