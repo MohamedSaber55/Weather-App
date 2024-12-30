@@ -229,7 +229,14 @@ const Home = () => {
                         </div>
                     </>
                     ) : (
-                        <p>No forecast data available</p>
+                        <div className="d-flex justify-content-center align-items-center" style={{height:"500px"}}>
+                            <div className="text-center">
+                                <div className="spinner-border text-primary mb-3" role="status" style={{height:"4rem",width:"4rem"}}>
+                                    <span className="visually-hidden">Loading...</span>
+                                </div>
+                                <p className="fw-bold">Loading forecast data...</p>
+                            </div>
+                        </div>
                     )}
                 </div>
             </div >
