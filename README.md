@@ -1,70 +1,95 @@
-# Getting Started with Create React App
+# Premium Weather App
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A full-stack premium weather dashboard — React 18 (CRA) frontend + an Express caching proxy.
 
-## Available Scripts
+## Features
 
-In the project directory, you can run:
+- **Current conditions** — big temperature, feels-like, hi/lo, day/night, sunrise/sunset
+- **Hourly forecast** — 24-hour strip; tap any hour for wind, gust, humidity, rain chance, UV, pressure, visibility, cloud
+- **Daily forecast** — expandable rows with sunrise/sunset, day length, moon phase & illumination, rain/snow, UV
+- **Air Quality Index** — US-EPA scale meter with main pollutant and health advice
+- **UV Index** — colored meter with burn-time guidance
+- **Daily insights** — clothing, activity, umbrella and comfort recommendations (rule-based)
+- **Trend charts** — 24-hour temperature curve and daily high/low (custom SVG, no chart lib)
+- **Radar map** — Leaflet + free RainViewer radar tiles (play/pause loop, opacity)
+- **Animated backgrounds** — condition-based particles: rain, snow, fog, clouds, stars, thunder flashes
+- **Favorites & recents** — quick-switch favorite chips, recent-search history, autocomplete city search
+- **Settings** — °C/°F, km/h↔mph, km↔mi, hPa↔inHg, 12/24h clock, light/dark theme (persisted)
+- **Severe weather alerts** — WeatherAPI alerts banner with color-coded hazard types
+- **PWA** — installable, offline shell via custom service worker
+- **Error/retry UI + skeletons**, race-safe fetching, response caching (5 min client / 30 min server)
 
-### `npm start`
+## Architecture
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+```
+Weather-App/
+├── server/            Express 5 proxy — hides the WeatherAPI key, caches, rate-limits
+│   ├── index.js       routes: /api/weather, /api/search, /api/ip-location, /api/health
+│   ├── cache.js       in-memory TTL cache with in-flight dedupe
+│   └── .env           WEATHER_API_KEY (gitignored; see .env.example)
+├── src/
+│   ├── lib/           api client, unit conversions, condition/advice engine
+│   ├── context/       Settings (units/theme) + Favorites (favorites/recents)
+│   ├── hooks/         useWeather (SWR-ish cache), useDebouncedValue
+│   └── components/    16 feature components
+└── public/            manifest, sw.js, icons
+```
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+**Why a backend?** The WeatherAPI free tier is quota-limited. The proxy caches every response
+(30 min weather / 12 h search) and dedupes concurrent requests, so your key is used far less
+and never exposed to the browser.
 
-### `npm test`
+**Free-tier forecast length:** WeatherAPI returns 3 forecast days on the free tier. The UI
+renders whatever comes back; upgrading the key unlocks all 7 (or more) automatically.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Local development
 
-### `npm run build`
+```bash
+# 1. Configure the API key (one-time)
+copy server\.env.example server\.env      # fill in WEATHER_API_KEY
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+# 2. Install deps
+npm install
+npm --prefix server install
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+# 3. Run the backend proxy (port 5000)
+npm run server
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+# 4. In another terminal, run the frontend (port 3000, proxies /api -> :5000)
+npm start
+```
 
-### `npm run eject`
+## Build & test
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+```bash
+npm run build      # production build -> build/  (relative asset paths)
+npm test           # unit + integration tests
+```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## Deployment
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+### Option A — single host (recommended, serves everything)
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+`npm run build`, then `npm start` the server. Express serves both the API and the built
+frontend from the same origin. Deploy `server/` + `build/` to Render, Railway, Fly.io, a
+VPS, etc. Set `WEATHER_API_KEY` (and `CORS_ORIGIN` if needed) as env vars.
 
-## Learn More
+### Option B — frontend on GitHub Pages + backend elsewhere
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+1. Deploy `server/` to any Node host (Render/Railway) with `WEATHER_API_KEY` set.
+2. Build with that URL baked in: copy `.env.example` to `.env` and set
+   `REACT_APP_API_URL=https://your-backend-host.example`, then `npm run build`.
+3. Deploy `build/` to Pages: `npm run deploy`.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+> Note: the API key lives in `server\.env` locally and in host env vars when deployed —
+> never in the frontend.
 
-### Code Splitting
+## Scripts
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+| Command | Action |
+|---|---|
+| `npm start` | CRA dev server (port 3000) |
+| `npm run server` | Express proxy (port 5000) |
+| `npm run build` | Production build |
+| `npm test` | Jest tests |
+| `npm run deploy` | Push `build/` to GitHub Pages |

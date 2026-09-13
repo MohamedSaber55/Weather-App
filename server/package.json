@@ -1,0 +1,19 @@
+{
+  "name": "weather-app-server",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Caching proxy for the premium weather app",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "axios": "^1.20.0",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.7.0"
+  }
+}
