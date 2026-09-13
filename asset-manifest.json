@@ -1,7 +1,7 @@
 {
   "files": {
-    "main.css": "/Weather-App/static/css/main.a29944d4.css",
-    "main.js": "/Weather-App/static/js/main.de70e3f9.js",
+    "main.css": "/Weather-App/static/css/main.3e84d71a.css",
+    "main.js": "/Weather-App/static/js/main.62b01973.js",
     "static/js/787.d9312eb8.chunk.js": "/Weather-App/static/js/787.d9312eb8.chunk.js",
     "static/media/fa-solid-900.ttf": "/Weather-App/static/media/fa-solid-900.2877d54f94f30c5d563c.ttf",
     "static/media/fa-brands-400.ttf": "/Weather-App/static/media/fa-brands-400.13e40630e5866f777de8.ttf",
@@ -13,12 +13,12 @@
     "static/media/fa-v4compatibility.ttf": "/Weather-App/static/media/fa-v4compatibility.6c0a7b774ffa1cf0a059.ttf",
     "static/media/fa-v4compatibility.woff2": "/Weather-App/static/media/fa-v4compatibility.497d535001197a9c5b38.woff2",
     "index.html": "/Weather-App/index.html",
-    "main.a29944d4.css.map": "/Weather-App/static/css/main.a29944d4.css.map",
-    "main.de70e3f9.js.map": "/Weather-App/static/js/main.de70e3f9.js.map",
+    "main.3e84d71a.css.map": "/Weather-App/static/css/main.3e84d71a.css.map",
+    "main.62b01973.js.map": "/Weather-App/static/js/main.62b01973.js.map",
     "787.d9312eb8.chunk.js.map": "/Weather-App/static/js/787.d9312eb8.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.a29944d4.css",
-    "static/js/main.de70e3f9.js"
+    "static/css/main.3e84d71a.css",
+    "static/js/main.62b01973.js"
   ]
 }
