@@ -23,7 +23,7 @@ const AqiCard = ({ airQuality }) => {
 
   return (
     <div className="box p-4 h-100">
-      <p className="fw-semibold fs-6 mb-3">
+      <p className="box-title fw-semibold fs-6 mb-3">
         <i className="fa-solid fa-smog me-2" style={{ color: '#7CB342' }} />AIR QUALITY
       </p>
       <div className="d-flex align-items-baseline gap-3">

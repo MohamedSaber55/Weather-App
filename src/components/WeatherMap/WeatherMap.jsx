@@ -91,7 +91,7 @@ const WeatherMap = ({ lat, lon, name }) => {
   return (
     <div className="box p-4">
       <div className="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
-        <p className="fw-semibold fs-6 mb-0">
+        <p className="box-title fw-semibold fs-6 mb-0">
           <i className="fa-solid fa-map-location-dot me-2" style={{ color: '#FF7043' }} />Radar Map
         </p>
         <div className="d-flex align-items-center gap-3">

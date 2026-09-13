@@ -9,7 +9,7 @@ const MoonPhase = ({ astro, settings }) => {
 
   return (
     <div className="box p-4 h-100">
-      <p className="fw-semibold fs-6 mb-2">
+      <p className="box-title fw-semibold fs-6 mb-2">
         <i className="fa-solid fa-moon me-2" style={{ color: '#9FA8DA' }} />MOON
       </p>
       <div className="moon-big text-center">

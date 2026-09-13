@@ -24,7 +24,7 @@ const UvCard = ({ uv }) => {
 
   return (
     <div className="box p-4 h-100">
-      <p className="fw-semibold fs-6 mb-3">
+      <p className="box-title fw-semibold fs-6 mb-3">
         <i className="fa-solid fa-sun me-2" style={{ color: '#FFC107' }} />UV INDEX
       </p>
       <div className="d-flex align-items-baseline gap-3">

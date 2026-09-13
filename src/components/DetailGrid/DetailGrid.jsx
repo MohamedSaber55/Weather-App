@@ -29,7 +29,9 @@ const DetailGrid = ({ current, today, settings }) => {
       {cards.map((c, i) => (
         <div key={i} className="col-12 col-sm-6 col-lg-4 py-2 pe-lg-2 d-flex">
           <div className="box p-3 flex-grow-1 d-flex align-items-center gap-3">
-            <i className={`${c.icon} fs-3`} style={{ color: c.color }} />
+            <div className="metric-icon">
+              <i className={c.icon} style={{ color: c.color }} />
+            </div>
             <div>
               <p className="fw-semibold small text-muted text-uppercase mb-0">{c.label}</p>
               <p className="fw-semibold fs-5 mb-0">{c.value}</p>

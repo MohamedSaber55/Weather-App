@@ -23,7 +23,7 @@ const HourlyForecast = ({ hours, settings }) => {
   return (
     <div className="box py-3 px-2">
       <div className="d-flex justify-content-between align-items-center ps-3 pe-2">
-        <h5 className="box-title fw-semibold mb-0">Hourly Forecast</h5>
+        <h5 className="box-title fw-semibold mb-0">HOURLY FORECAST</h5>
         <span className="small text-muted">Tap an hour for details</span>
       </div>
       <div className="d-flex py-2 forecast-container px-2" aria-label="Hourly forecast">

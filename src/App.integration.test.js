@@ -108,12 +108,12 @@ describe('Premium Weather dashboard', () => {
   test('renders full weather dashboard with real data', async () => {
     renderApp();
     expect(await screen.findByRole('heading', { name: /cairo/i })).toBeInTheDocument();
-    await waitFor(() => expect(screen.getByText('Hourly Forecast')).toBeInTheDocument());
-    expect(screen.getByText('Forecast')).toBeInTheDocument();
-    expect(screen.getByText('AIR QUALITY')).toBeInTheDocument();
-    expect(screen.getByText('UV INDEX')).toBeInTheDocument();
-    expect(screen.getByText('What to wear')).toBeInTheDocument();
-    expect(screen.getByText('24-hour temperature')).toBeInTheDocument();
+    await waitFor(() => expect(screen.getAllByText(/hourly forecast/i).length).toBeGreaterThan(0));
+    expect(screen.getAllByText(/daily forecast/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/air quality/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/uv index/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText('What to wear').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('24-hour temperature').length).toBeGreaterThan(0);
   });
 
   test('shows an error state when the API fails', async () => {

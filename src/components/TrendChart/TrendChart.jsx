@@ -44,7 +44,7 @@ const TrendChart = ({ title, icon, iconColor, entries, band, color = '#FFC107', 
 
   return (
     <div className="box p-4">
-      <p className="fw-semibold fs-6 mb-2">
+      <p className="box-title fw-semibold fs-6 mb-2">
         <i className={`${icon} me-2`} style={{ color: iconColor }} />{title}
       </p>
       <svg viewBox={`0 0 ${W} ${H}`} className="trend-chart" role="img" aria-label={title}>

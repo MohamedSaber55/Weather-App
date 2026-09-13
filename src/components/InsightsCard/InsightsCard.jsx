@@ -21,7 +21,7 @@ const InsightsCard = ({ current, day }) => {
 
   return (
     <div className="box p-4">
-      <p className="fw-semibold fs-6 mb-3">
+      <p className="box-title fw-semibold fs-6 mb-3">
         <i className="fa-solid fa-list-check me-2" style={{ color: '#03A9F4' }} />DAILY INSIGHTS
       </p>
       <div className="d-flex flex-wrap gap-3">

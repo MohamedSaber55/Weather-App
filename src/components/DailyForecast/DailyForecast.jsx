@@ -11,7 +11,7 @@ const DailyForecast = ({ forecastdays, settings }) => {
   return (
     <div className="box px-4 py-3">
       <h5 className="fw-semibold mb-0 pb-2 d-flex justify-content-between">
-        <span><i className="fa-solid fa-calendar-days me-2 text-info" />Forecast</span>
+        <span><i className="fa-solid fa-calendar-days me-2 text-info" />DAILY FORECAST</span>
         <span className="small text-muted fw-normal">Tap a day for details</span>
       </h5>
       {forecastdays.map((fd, i) => {

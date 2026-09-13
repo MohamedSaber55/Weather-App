@@ -46,6 +46,21 @@ function makeFog(n) {
   }))
 }
 
+const ORBS = {
+  day: [
+    { top: '8%', left: '12%', size: 480, color: 'rgba(255, 190, 90, 0.55)', duration: 55, delay: -8 },
+    { top: '38%', left: '68%', size: 560, color: 'rgba(120, 200, 255, 0.5)', duration: 70, delay: -20 },
+    { top: '72%', left: '24%', size: 520, color: 'rgba(255, 138, 101, 0.42)', duration: 62, delay: -35 },
+    { top: '20%', left: '45%', size: 420, color: 'rgba(80, 220, 210, 0.4)', duration: 80, delay: -50 },
+  ],
+  night: [
+    { top: '6%', left: '70%', size: 520, color: 'rgba(104, 90, 255, 0.5)', duration: 60, delay: -10 },
+    { top: '42%', left: '12%', size: 480, color: 'rgba(40, 130, 255, 0.48)', duration: 72, delay: -25 },
+    { top: '74%', left: '58%', size: 560, color: 'rgba(0, 220, 255, 0.34)', duration: 66, delay: -40 },
+    { top: '22%', left: '30%', size: 430, color: 'rgba(200, 90, 220, 0.3)', duration: 84, delay: -55 },
+  ],
+}
+
 const BGS = {
   day: {
     clear: 'linear-gradient(180deg,#1e88e5 0%,#4fc3f7 45%,#b3e5fc 100%)',
@@ -90,10 +105,15 @@ const AnimatedBackground = ({ category, isDay, code }) => {
   }, [isThunder])
 
   const renderStars = isDay === false && (category === 'clear' || category === 'partly' || category === 'thunder')
+  const orbs = ORBS[isDay ? 'day' : 'night'] || ORBS.day
 
   return (
     <div className="weather-bg" aria-hidden="true" data-code={code}>
       <div className="weather-bg-gradient" style={{ backgroundImage: gradient }} />
+      <div className="bg-noise" />
+      {orbs.map(o => (
+        <div key={o.top + o.left} className="bg-orb" style={{ top: o.top, left: o.left, width: o.size, height: o.size, background: `radial-gradient(circle at 32% 32%, ${o.color}, transparent 68%)`, animationDuration: `${o.duration}s`, animationDelay: `${o.delay}s` }} />
+      ))}
       {renderStars && <div className="bg-stars" />}
       {clouds.map(c => (
         <div key={c.id} className="bg-cloud" style={{ left: `${c.left}%`, top: `${c.top}%`, transform: `scale(${c.scale})`, animationDuration: `${c.duration}s`, animationDelay: `${c.delay}s`, opacity: c.opacity }} />
