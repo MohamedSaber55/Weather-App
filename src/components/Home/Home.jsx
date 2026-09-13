@@ -48,22 +48,11 @@ const Home = () => {
     else pushRecent({ name })
   }, [handleSetQuery, pushRecent])
 
-  const ipFallback = useCallback(async () => {
-    try {
-      const res = await fetch(`${process.env.REACT_APP_API_URL || ''}/api/ip-location`)
-      if (!res.ok) throw new Error('ip')
-      const place = await res.json()
-      if (place?.name) handleSetQuery(place.name)
-    } catch {
-      // no fallback available — leave current city
-    }
-  }, [handleSetQuery])
-
   const handleUseCurrentLocation = () => {
     setLocating(true)
     if (!navigator.geolocation) {
       setLocating(false)
-      ipFallback()
+      alert('Geolocation is not supported by your browser.')
       return
     }
     navigator.geolocation.getCurrentPosition(
@@ -81,7 +70,7 @@ const Home = () => {
       },
       () => {
         setLocating(false)
-        ipFallback()
+        alert('Unable to fetch current location. Please allow location access.')
       },
       { timeout: 8000 }
     )

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { getWeather } from '../lib/api'
 
 export function useWeather(query) {
   const [state, setState] = useState({ status: 'loading', data: null, error: null, stale: false })
@@ -25,7 +26,7 @@ export function useWeather(query) {
       stale: Boolean(cached),
     }))
 
-    getWeatherSafe(key, controller.signal)
+    getWeather(key, { days: 7, aqi: true, alerts: true, signal: controller.signal })
       .then(data => {
         cacheRef.current.set(key, { data, ts: Date.now() })
         if (!controller.signal.aborted) {
@@ -51,33 +52,6 @@ export function useWeather(query) {
   }
 
   return { ...state, reload }
-}
-
-let inflight = new Map()
-
-function getWeatherSafe(key, signal) {
-  const url = `${process.env.REACT_APP_API_URL || ''}/api/weather?${new URLSearchParams({ q: key, days: '7', aqi: 'yes', alerts: 'yes' })}`
-
-  if (inflight.has(url)) return inflight.get(url)
-
-  const promise = fetch(url, { signal })
-    .then(async res => {
-      if (!res.ok) {
-        let msg = `Request failed (${res.status})`
-        try {
-          const body = await res.json()
-          if (body?.error) msg = body.error
-        } catch {
-          // ignore
-        }
-        throw new Error(msg)
-      }
-      return res.json()
-    })
-    .finally(() => inflight.delete(url))
-
-  inflight.set(url, promise)
-  return promise
 }
 
 export default useWeather

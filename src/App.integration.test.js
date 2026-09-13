@@ -81,10 +81,10 @@ const weather = {
 
 beforeEach(() => {
   global.fetch = jest.fn(url => {
-    if (String(url).includes('/api/weather')) {
+    if (String(url).includes('api.weatherapi.com') && String(url).includes('forecast.json')) {
       return Promise.resolve({ ok: true, json: () => Promise.resolve(weather) });
     }
-    if (String(url).includes('/api/search')) {
+    if (String(url).includes('api.weatherapi.com') && String(url).includes('search.json')) {
       return Promise.resolve({ ok: true, json: () => Promise.resolve([]) });
     }
     if (String(url).includes('rainviewer.com/public/weather-maps.json')) {

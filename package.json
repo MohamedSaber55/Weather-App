@@ -1,5 +1,5 @@
 {
-  "homepage": ".",
+  "homepage": "https://MohamedSaber55.github.io/Weather-App",
   "name": "weather_app",
   "version": "0.1.0",
   "private": true,
@@ -24,11 +24,8 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "server": "npm --prefix server start",
-    "dev:server": "npm --prefix server start",
     "eject": "react-scripts eject"
   },
-  "proxy": "http://localhost:5000",
   "eslintConfig": {
     "extends": [
       "react-app",
