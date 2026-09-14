@@ -80,3 +80,67 @@ export function formatDateTime(date, hourFormat) {
   const time = formatTime(`${pad(date.getHours())}:${pad(date.getMinutes())}`, hourFormat)
   return { datePart, time }
 }
+export const clamp = (n, min, max) => Math.min(max, Math.max(min, n))
+
+export function fixed1(n) {
+  const v = Number(n)
+  return n === null || n === undefined || Number.isNaN(v) ? '--' : v.toFixed(1)
+}
+
+export function tempValue(celsius, unit) {
+  return unit === 'F' ? (celsius * 9) / 5 + 32 : celsius
+}
+
+export function speedValue(kph, unit) {
+  return unit === 'mph' ? kph * 0.621371 : kph
+}
+
+export const speedLabel = unit => (unit === 'mph' ? 'mph' : 'km/h')
+
+// "06:31 AM" / "2026-09-14 12:40" -> 6.52 / 12.67 (fractional hours)
+export function clockHours(input) {
+  const c = parseClock(input)
+  return c ? c.h + c.mi / 60 : null
+}
+
+// Offset between the location's wall clock and UTC, e.g. "UTC+3" or "UTC+5:30"
+export function utcOffsetLabel(localtime, epoch) {
+  const m = String(localtime || '').match(/(\d{4})-(\d{2})-(\d{2})\s+(\d{1,2}):(\d{2})/)
+  if (!m || !epoch) return null
+  const wallAsUtc = Date.UTC(+m[1], +m[2] - 1, +m[3], +m[4], +m[5]) / 1000
+  const minutes = Math.round((wallAsUtc - epoch) / 900) * 15
+  const abs = Math.abs(minutes)
+  const h = Math.floor(abs / 60)
+  const mi = abs % 60
+  return `UTC${minutes < 0 ? '-' : '+'}${h}${mi ? `:${pad(mi)}` : ''}`
+}
+
+export function coordsLabel(lat, lon) {
+  if (typeof lat !== 'number' || typeof lon !== 'number') return ''
+  return `${Math.abs(lat).toFixed(2)}${lat >= 0 ? 'N' : 'S'} ${Math.abs(lon).toFixed(2)}${lon >= 0 ? 'E' : 'W'}`
+}
+
+const DAYS_SHORT = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+const MONTHS_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+
+// "2026-09-14 12:40" -> "Mon 14 Sep 2026"
+export function dateStamp(localtime) {
+  const d = localTime(localtime)
+  if (!d) return ''
+  return `${DAYS_SHORT[d.getDay()]} ${d.getDate()} ${MONTHS_SHORT[d.getMonth()]} ${d.getFullYear()}`
+}
+
+// "2026-09-14" -> "Mon 14"
+export function dayStamp(date) {
+  const d = new Date(`${date}T12:00:00`)
+  if (Number.isNaN(d.getTime())) return String(date || '')
+  return `${DAYS_SHORT[d.getDay()]} ${d.getDate()}`
+}
+
+// "2026-09-14 12:30" + 15 -> "12:45" (in the location's wall clock)
+export function addMinutes(localtime, minutes, hourFormat) {
+  const d = localTime(localtime)
+  if (!d) return '--'
+  d.setMinutes(d.getMinutes() + minutes)
+  return formatTime(`${pad(d.getHours())}:${pad(d.getMinutes())}`, hourFormat)
+}

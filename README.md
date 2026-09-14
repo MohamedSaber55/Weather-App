@@ -1,24 +1,39 @@
 # Premium Weather App
 
-A pure frontend premium weather dashboard — React 18 (Create React App), deployed to
+A pure frontend weather dashboard — React 18 (Create React App), deployed to
 **GitHub Pages**. No server needed.
 
-## Features
+The interface is an **instrument panel**: graphite tiles on a 12-column grid,
+monospaced figures (IBM Plex Mono), hairline borders, gauges for the readings
+that have a scale. Everything the app knows is on one screen; nothing is hidden
+behind a tab.
 
-- **Current conditions** — big temperature, feels-like, hi/lo, day/night, sunrise/sunset
-- **Hourly forecast** — 24-hour strip; tap any hour for wind, gust, humidity, rain chance, UV, pressure, visibility, cloud
-- **Daily forecast** — expandable rows with sunrise/sunset, day length, moon phase & illumination, rain/snow, UV
-- **Air Quality Index** — US-EPA scale meter with main pollutant and health advice
-- **UV Index** — colored meter with burn-time guidance
-- **Daily insights** — clothing, activity, umbrella and comfort recommendations (rule-based)
-- **Trend charts** — 24-hour temperature curve and daily high/low (custom SVG, no chart lib)
-- **Radar map** — Leaflet + free RainViewer radar tiles (play/pause loop, opacity) — no API key needed
-- **Animated backgrounds** — condition-based particles: rain, snow, fog, clouds, stars, thunder flashes
-- **Favorites & recents** — quick-switch favorite chips, recent-search history, autocomplete city search
-- **Settings** — °C/°F, km/h↔mph, km↔mi, hPa↔inHg, 12/24h clock, light/dark theme (persisted)
-- **Severe weather alerts** — WeatherAPI alerts banner with color-coded hazard types
+## Panels
+
+- **Temperature** — current, feels-like, dew point, and a rail showing where the
+  reading sits inside today's low/high
+- **Condition** — icon, condition text, day/night, cloud, rain chance, visibility
+- **Wind** — compass dial with the wind direction, speed and gusts
+- **Humidity / Pressure** — segmented humidity meter, pressure in both units
+- **Temperature · 24 h** — hourly curve with night shading; hover, tap or use the
+  arrow keys to read any hour (temperature, feels-like, UV, rain chance, wind)
+- **Forecast** — a table of the returned days; pick a row for sunrise, sunset,
+  max wind, precipitation, humidity and moon
+- **Radar** — Leaflet + free RainViewer radar tiles over OpenStreetMap, with a
+  frame timeline, play/pause loop and an opacity control — no API key needed
+- **Air quality** — US EPA category gauge (1–6) with the main pollutants
+- **UV index** — gauge, hour-by-hour bars, burn time and protection advice
+- **Sun / Moon** — daylight arc with elapsed share, moon phase drawn to the
+  reported illumination
+- **Advisories** — clothing, activity, rain and comfort tips (rule-based)
+- **Search & saved locations** — autocomplete search (press `/` to focus), saved
+  location tabs, recent searches
+- **Settings** — °C/°F, km/h↔mph, km↔mi, hPa↔inHg, 12/24h clock, light/dark theme
+  (persisted)
+- **Severe weather alerts** — WeatherAPI alerts banner with color-coded hazards
 - **PWA** — installable, offline shell via a scope-aware service worker
-- **Error/retry UI + skeletons**, race-safe fetching with a 5-minute in-memory cache
+- **Error/retry UI + skeletons**, race-safe fetching with a 5-minute in-memory
+  cache and a silent refresh every 10 minutes
 
 ## Data source
 
@@ -28,7 +43,9 @@ account's quota — that's inherent to any no-server weather app. A free-tier ac
 **3 forecast days**; the UI renders whatever the API returns, so upgrading the key unlocks
 more days automatically without code changes.
 
-RainViewer radar tiles and OpenStreetMap basemap are free and keyless.
+RainViewer radar tiles and the OpenStreetMap basemap are free and keyless. The
+basemap is plain OpenStreetMap; the graphite look is a CSS filter over the base
+tiles only, so radar colors stay true.
 
 ## Local development
 
@@ -62,6 +79,7 @@ npm test           # unit + integration tests
 | Command | Action |
 |---|---|
 | `npm start` | CRA dev server (port 3000) |
+| `npm test -- --watchAll=false` | Run tests once |
 | `npm run build` | Production build to `build/` |
 | `npm run deploy` | Push `build/` to GitHub Pages |
 | `npm test` | Jest tests |

@@ -1,188 +1,216 @@
-import React, { useCallback, useState } from 'react'
-import MainNavbar from '../MainNavbar/MainNavbar'
-import AnimatedBackground from '../AnimatedBackground/AnimatedBackground'
-import CurrentWeather from '../CurrentWeather/CurrentWeather'
-import HourlyForecast from '../HourlyForecast/HourlyForecast'
-import DailyForecast from '../DailyForecast/DailyForecast'
-import DetailGrid from '../DetailGrid/DetailGrid'
-import AqiCard from '../AqiCard/AqiCard'
-import UvCard from '../UvCard/UvCard'
-import InsightsCard from '../InsightsCard/InsightsCard'
-import TrendChart from '../TrendChart/TrendChart'
-import WeatherMap from '../WeatherMap/WeatherMap'
+import React, { useCallback, useEffect, useState } from 'react'
+import Header from '../Header/Header'
 import AlertsBanner from '../AlertsBanner/AlertsBanner'
-import MoonPhase from '../MoonPhase/MoonPhase'
-import FavoritesBar from '../FavoritesBar/FavoritesBar'
+import TemperatureTile from '../TemperatureTile/TemperatureTile'
+import ConditionTile from '../ConditionTile/ConditionTile'
+import WindTile from '../WindTile/WindTile'
+import HumidityTile from '../HumidityTile/HumidityTile'
+import PressureTile from '../PressureTile/PressureTile'
+import TempChartTile from '../TempChartTile/TempChartTile'
+import ForecastTile from '../ForecastTile/ForecastTile'
+import RadarTile from '../RadarTile/RadarTile'
+import AirQualityTile from '../AirQualityTile/AirQualityTile'
+import UvTile from '../UvTile/UvTile'
+import SunTile from '../SunTile/SunTile'
+import MoonTile from '../MoonTile/MoonTile'
+import AdvisoriesTile from '../AdvisoriesTile/AdvisoriesTile'
 import SettingsDrawer from '../SettingsDrawer/SettingsDrawer'
 import SkeletonLoader from '../SkeletonLoader/SkeletonLoader'
 import ErrorRetry from '../ErrorRetry/ErrorRetry'
+import { Icon } from '../Icons/Icons'
 import { useWeather } from '../../hooks/useWeather'
 import { useSettings } from '../../context/SettingsContext'
 import { useFavorites } from '../../context/FavoritesContext'
 import { getSearchResults } from '../../lib/api'
-import { getCategory } from '../../lib/conditions'
-import { formatTime, formatDateTime } from '../../lib/units'
+import { addMinutes, clockHours, dateStamp, formatTime, speedLabel } from '../../lib/units'
 
-const DEFAULTS = {
-  city: 'beni suef',
+const DEFAULT_CITY = 'beni suef'
+const REFRESH_MS = 10 * 60 * 1000
+
+// WeatherAPI accepts an id, "lat,lon" or a plain name — prefer the most precise one
+function placeQuery(place) {
+  if (!place) return DEFAULT_CITY
+  if (place.id) return `id:${place.id}`
+  if (typeof place.lat === 'number' && typeof place.lon === 'number') return `${place.lat},${place.lon}`
+  return place.name || String(place)
 }
 
 const Home = () => {
-  const [query, setQuery] = useState(() => localStorage.getItem('city') || DEFAULTS.city)
+  const [query, setQuery] = useState(() => {
+    try {
+      return localStorage.getItem('city') || DEFAULT_CITY
+    } catch {
+      return DEFAULT_CITY
+    }
+  })
   const { settings } = useSettings()
   const { favorites, toggleFavorite, pushRecent } = useFavorites()
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [locating, setLocating] = useState(false)
+  const [notice, setNotice] = useState(null)
 
-  const { status, data, error, stale, reload } = useWeather(query)
+  const { status, data, error, stale, reload, refresh } = useWeather(query)
 
-  const handleSetQuery = useCallback(value => {
-    setQuery(value || DEFAULTS.city)
-    localStorage.setItem('city', value || DEFAULTS.city)
+  useEffect(() => {
+    const id = setInterval(() => {
+      if (typeof document === 'undefined' || document.visibilityState === 'visible') refresh()
+    }, REFRESH_MS)
+    return () => clearInterval(id)
+  }, [refresh])
+
+  const applyQuery = useCallback(value => {
+    const next = value || DEFAULT_CITY
+    setQuery(next)
+    try {
+      localStorage.setItem('city', next)
+    } catch {
+      // private mode — the city just will not be remembered
+    }
   }, [])
 
-  const handleSelectPlace = useCallback(place => {
-    const name = place?.name || String(place)
-    handleSetQuery(name)
-    if (place?.name) pushRecent(place)
-    else pushRecent({ name })
-  }, [handleSetQuery, pushRecent])
+  const handleSelectPlace = useCallback(
+    place => {
+      applyQuery(placeQuery(place))
+      pushRecent({
+        name: place?.name || String(place),
+        region: place?.region,
+        country: place?.country,
+        lat: place?.lat,
+        lon: place?.lon,
+        id: place?.id,
+      })
+    },
+    [applyQuery, pushRecent]
+  )
 
   const handleUseCurrentLocation = () => {
-    setLocating(true)
+    setNotice(null)
     if (!navigator.geolocation) {
-      setLocating(false)
-      alert('Geolocation is not supported by your browser.')
+      setNotice('This browser cannot share your location.')
       return
     }
+    setLocating(true)
     navigator.geolocation.getCurrentPosition(
       async pos => {
         const { latitude, longitude } = pos.coords
         try {
           const results = await getSearchResults(`${latitude},${longitude}`, 1)
-          const place = results[0]
-          handleSetQuery(place?.name || `${latitude},${longitude}`)
+          handleSelectPlace(results[0] || { name: `${latitude},${longitude}` })
         } catch {
-          handleSetQuery(`${latitude},${longitude}`)
+          applyQuery(`${latitude},${longitude}`)
         } finally {
           setLocating(false)
+          setDrawerOpen(false)
         }
       },
       () => {
         setLocating(false)
-        alert('Unable to fetch current location. Please allow location access.')
+        setNotice('Location access was blocked. Search for a city instead.')
       },
       { timeout: 8000 }
     )
   }
 
-  const category = data?.current ? getCategory(data.current.condition.code) : 'clear'
   const location = data?.location
-  const today = data?.forecast?.forecastday?.[0]
   const current = data?.current
-  const isFavorite = Boolean(location && favorites.some(f => String(f.name).toLowerCase() === String(location.name).toLowerCase()))
+  const days = data?.forecast?.forecastday || []
+  const today = days[0]
+  const nowHour = location ? clockHours(location.localtime) : null
+  const currentHour = today?.hour?.[Math.floor(nowHour ?? 0)]
+
+  const isFavorite = Boolean(
+    location && favorites.some(f => String(f.name).toLowerCase() === String(location.name).toLowerCase())
+  )
 
   const handleToggleFavorite = () => {
     if (!location) return
-    toggleFavorite({ name: location.name, region: location.region, country: location.country, lat: location.lat, lon: location.lon })
-    pushRecent({ name: location.name, region: location.region, country: location.country, lat: location.lat, lon: location.lon })
+    toggleFavorite({
+      name: location.name,
+      region: location.region,
+      country: location.country,
+      lat: location.lat,
+      lon: location.lon,
+    })
   }
 
-  const hourlyEntries = today?.hour?.map(h => ({
-    label: formatTime(h.time, settings.hourFormat).replace(/:00|:30/g, ''),
-    value: h.temp_c,
-  }))
-
-  const weeklyBand = data?.forecast?.forecastday?.map((fd, i) => ({
-    label: i === 0 ? 'Today' : new Date(`${fd.date}T12:00:00`).toLocaleDateString(undefined, { weekday: 'short' }),
-    high: fd.day.maxtemp_c,
-    low: fd.day.mintemp_c,
-  }))
-
-  const lastUpdated = location?.localtime_epoch
-    ? formatDateTime(new Date((location.localtime_epoch) * 1000), settings.hourFormat).time
-    : null
+  const updated = current?.last_updated || location?.localtime
 
   return (
-    <>
-      <AnimatedBackground category={category} isDay={data?.current?.is_day === 1} code={data?.current?.condition?.code} />
-      <MainNavbar
-        query={query}
-        setQuery={handleSetQuery}
+    <div className="wx-app">
+      <Header
+        location={location}
+        favorites={favorites}
+        isFavorite={isFavorite}
+        onToggleFavorite={handleToggleFavorite}
         onSelectPlace={handleSelectPlace}
         onUseCurrentLocation={handleUseCurrentLocation}
+        locating={locating}
         onOpenSettings={() => setDrawerOpen(true)}
+      />
+
+      <div className="statusbar">
+        <span>{location ? `${dateStamp(location.localtime)} · ${formatTime(location.localtime, settings.hourFormat)} local` : 'Connecting…'}</span>
+        <span className="statusbar-live">
+          <span className={`live-dot${status === 'loading' ? ' is-busy' : ''}`} aria-hidden="true" />
+          {updated
+            ? `Updated ${formatTime(updated, settings.hourFormat)} · Next ${addMinutes(updated, 15, settings.hourFormat)}`
+            : 'Fetching…'}
+        </span>
+      </div>
+
+      {notice && (
+        <div className="notice" role="status">
+          <Icon name="alert" size={14} />
+          <span className="notice-text">{notice}</span>
+          <button type="button" className="ghost-btn" onClick={() => setNotice(null)}>
+            Dismiss
+          </button>
+        </div>
+      )}
+
+      <main className="wx-main">
+        {status === 'loading' && !data && <SkeletonLoader />}
+        {status === 'error' && !data && <ErrorRetry error={error} onRetry={reload} />}
+
+        {data && current && today && (
+          <>
+            {error && <ErrorRetry compact error={error} onRetry={reload} />}
+            <AlertsBanner alerts={data.alerts} settings={settings} />
+
+            <div className={`grid${stale ? ' is-stale' : ''}`}>
+              <TemperatureTile current={current} day={today.day} settings={settings} />
+              <ConditionTile current={current} hour={currentHour} settings={settings} />
+              <WindTile current={current} settings={settings} />
+              <HumidityTile current={current} settings={settings} />
+              <PressureTile current={current} settings={settings} />
+              <TempChartTile day={today} current={current} location={location} settings={settings} />
+              <ForecastTile days={days} settings={settings} />
+              <RadarTile lat={location.lat} lon={location.lon} name={location.name} />
+              <AirQualityTile airQuality={current.air_quality} />
+              <UvTile uv={current.uv} hours={today.hour} nowHour={nowHour} settings={settings} />
+              <SunTile astro={today.astro} localtime={location.localtime} settings={settings} />
+              <MoonTile astro={today.astro} settings={settings} />
+              <AdvisoriesTile current={current} day={today.day} />
+            </div>
+          </>
+        )}
+      </main>
+
+      <footer className="wx-footer">
+        <span>Src weatherapi.com · Radar rainviewer · Map OSM</span>
+        <span className="hide-mobile">
+          Units °{settings.tempUnit} · {speedLabel(settings.speedUnit)} · {settings.distanceUnit} · {settings.pressureUnit} ·{' '}
+          {settings.hourFormat}h
+        </span>
+      </footer>
+
+      <SettingsDrawer
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        onUseCurrentLocation={handleUseCurrentLocation}
         locating={locating}
       />
-      <main className="app-main">
-        <div className="container position-relative">
-          {status === 'loading' && !stale && <SkeletonLoader />}
-          {status === 'error' && !data && <ErrorRetry error={error} onRetry={reload} />}
-          {stale && error && <ErrorRetry compact error={error} onRetry={reload} />}
-          {data && (
-            <>
-              {lastUpdated && (
-                <p className="text-muted small text-end mb-2">Last updated {lastUpdated}</p>
-              )}
-              <FavoritesBar currentName={location.name} onSelect={handleSelectPlace} />
-              <AlertsBanner alerts={data.alerts} settings={settings} />
-
-              <div className="row g-3 g-lg-4">
-                <div className="col-lg-8 d-flex flex-column gap-3">
-                  <CurrentWeather
-                    data={data}
-                    isFavorite={isFavorite}
-                    onToggleFavorite={handleToggleFavorite}
-                    settings={settings}
-                  />
-                  <InsightsCard current={current} day={today?.day} />
-                  <HourlyForecast hours={today?.hour} settings={settings} />
-                  <div className="row g-3">
-                    <div className="col-md-6">
-                      <TrendChart
-                        title="24-hour temperature"
-                        icon="fa-solid fa-temperature-quarter"
-                        iconColor="#FF7043"
-                        color="#FF7043"
-                        entries={hourlyEntries}
-                        labelEvery={3}
-                      />
-                    </div>
-                    <div className="col-md-6">
-                      <TrendChart
-                        title="Daily high / low"
-                        icon="fa-solid fa-temperature-arrow-up"
-                        iconColor="#26A5EB"
-                        color="#FFC107"
-                        band={weeklyBand}
-                      />
-                    </div>
-                  </div>
-                  <WeatherMap lat={location.lat} lon={location.lon} name={location.name} />
-                  <DetailGrid current={current} today={today} settings={settings} />
-                </div>
-                <div className="col-lg-4 d-flex flex-column gap-3">
-                  <DailyForecast forecastdays={data.forecast.forecastday} settings={settings} />
-                  <div className="row g-3">
-                    <div className="col-md-6 col-lg-12">
-                      <AqiCard airQuality={current.air_quality} />
-                    </div>
-                    <div className="col-md-6 col-lg-12">
-                      <UvCard uv={current.uv} />
-                    </div>
-                  </div>
-                  <MoonPhase astro={today?.astro} settings={settings} />
-                </div>
-              </div>
-            </>
-          )}
-        </div>
-      </main>
-      <SettingsDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} />
-      <footer className="text-center text-muted small py-4 mt-4 position-relative">
-        Premium Weather · Powered by WeatherAPI & RainViewer
-      </footer>
-    </>
+    </div>
   )
 }
 

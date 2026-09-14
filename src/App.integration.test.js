@@ -3,10 +3,22 @@ import App from './App';
 import { SettingsProvider } from './context/SettingsContext';
 import { FavoritesProvider } from './context/FavoritesContext';
 
-jest.mock('leaflet', () => ({
-  map: jest.fn(() => ({ setView: jest.fn(), remove: jest.fn(), removeLayer: jest.fn() })),
-  tileLayer: jest.fn(() => ({ addTo: jest.fn(), setOpacity: jest.fn() })),
-}));
+// plain functions, not jest.fn(): CRA resets mock implementations before every test
+jest.mock('leaflet', () => {
+  const noop = () => {};
+  return {
+    map: () => ({
+      setView: noop,
+      remove: noop,
+      removeLayer: noop,
+      invalidateSize: noop,
+      attributionControl: { setPrefix: noop },
+    }),
+    tileLayer: () => ({ addTo: noop, setOpacity: noop, remove: noop }),
+    marker: () => ({ addTo: noop, setLatLng: noop, setIcon: noop }),
+    divIcon: () => ({}),
+  };
+});
 
 const buildHour = h => ({
   time: `2026-09-13 ${String(h).padStart(2, '0')}:00`,
@@ -60,6 +72,7 @@ const weather = {
     localtime_epoch: 1786701600,
   },
   current: {
+    last_updated: '2026-09-13 13:45',
     temp_c: 32,
     feelslike_c: 33,
     is_day: 1,
@@ -67,13 +80,14 @@ const weather = {
     wind_kph: 15,
     gust_kph: 20,
     wind_dir: 'N',
+    wind_degree: 355,
     vis_km: 10,
     pressure_mb: 1013,
     dewpoint_c: 18,
     cloud: 0,
     uv: 8,
     condition: { text: 'Sunny', icon: 'http://cdn.weatherapi.com/weather/64x64/day/113.png', code: 1000 },
-    air_quality: { 'us-epa-index': 42, pm2_5: 8, pm10: 12 },
+    air_quality: { 'us-epa-index': 2, pm2_5: 8, pm10: 12, o3: 40, no2: 9 },
   },
   forecast: { forecastday: [day(0), day(1), day(2)] },
   alerts: { alert: [] },
@@ -88,9 +102,12 @@ beforeEach(() => {
       return Promise.resolve({ ok: true, json: () => Promise.resolve([]) });
     }
     if (String(url).includes('rainviewer.com/public/weather-maps.json')) {
-      return Promise.resolve({ ok: true, json: () => Promise.resolve({ radar: { past: [1786700000], nowcast: [] } }) });
+      return Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve({ host: 'https://tilecache.rainviewer.com', radar: { past: [{ time: 1786700000, path: '/v2/radar/1786700000' }], nowcast: [] } }),
+      });
     }
-    return Promise.resolve({ ok: true, json: () => Promise.resolve({}) , text: () => Promise.resolve('') });
+    return Promise.resolve({ ok: true, json: () => Promise.resolve({}), text: () => Promise.resolve('') });
   });
 });
 
@@ -104,16 +121,27 @@ function renderApp() {
   );
 }
 
-describe('Premium Weather dashboard', () => {
-  test('renders full weather dashboard with real data', async () => {
+describe('Instrument panel dashboard', () => {
+  test('renders every panel with real data', async () => {
     renderApp();
     expect(await screen.findByRole('heading', { name: /cairo/i })).toBeInTheDocument();
-    await waitFor(() => expect(screen.getAllByText(/hourly forecast/i).length).toBeGreaterThan(0));
-    expect(screen.getAllByText(/daily forecast/i).length).toBeGreaterThan(0);
+    await waitFor(() => expect(screen.getAllByText(/temperature · 24 h/i).length).toBeGreaterThan(0));
+    expect(screen.getAllByText(/^forecast$/i).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/air quality/i).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/uv index/i).length).toBeGreaterThan(0);
-    expect(screen.getAllByText('What to wear').length).toBeGreaterThan(0);
-    expect(screen.getAllByText('24-hour temperature').length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/advisories/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/radar/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/wear/i).length).toBeGreaterThan(0);
+    // current readings: temperature, humidity and wind
+    expect(screen.getByText('32.0')).toBeInTheDocument();
+    expect(screen.getAllByText('40').length).toBeGreaterThan(0);
+    expect(screen.getByText(/N 355°/)).toBeInTheDocument();
+  });
+
+  test('reports the US EPA air quality category, not a 0-500 index', async () => {
+    renderApp();
+    expect(await screen.findByText(/moderate/i)).toBeInTheDocument();
+    expect(screen.getByText('/6')).toBeInTheDocument();
   });
 
   test('shows an error state when the API fails', async () => {

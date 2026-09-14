@@ -1,6 +1,6 @@
 /* Premium Weather service worker — scope-aware */
 
-const CACHE = 'weather-v1'
+const CACHE = 'weather-v2'
 
 self.addEventListener('install', event => {
   const scope = self.registration.scope // e.g. https://user.github.io/Weather-App/
