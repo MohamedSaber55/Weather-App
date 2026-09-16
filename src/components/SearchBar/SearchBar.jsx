@@ -1,3 +1,4 @@
+import { useI18n } from '../../context/SettingsContext'
 import React, { useEffect, useId, useRef, useState } from 'react'
 import { getSearchResults } from '../../lib/api'
 import { useDebouncedValue } from '../../hooks/useDebouncedValue'
@@ -5,6 +6,8 @@ import { useFavorites } from '../../context/FavoritesContext'
 import { Icon } from '../Icons/Icons'
 
 const SearchBar = ({ onSelect, inputRef, open: forcedOpen, onClose }) => {
+  const { t } = useI18n()
+  const offline = typeof navigator !== 'undefined' && navigator.onLine === false
   const [text, setText] = useState('')
   const [suggestions, setSuggestions] = useState([])
   const [open, setOpen] = useState(false)
@@ -99,16 +102,16 @@ const SearchBar = ({ onSelect, inputRef, open: forcedOpen, onClose }) => {
           }}
           onFocus={() => setOpen(true)}
           onKeyDown={handleKeyDown}
-          placeholder="Search city"
+          placeholder={t('search.placeholder')}
           role="combobox"
           aria-expanded={open}
           aria-controls={listboxId}
-          aria-label="Search for a city"
+          aria-label={t('search.aria')}
           aria-autocomplete="list"
           autoComplete="off"
         />
         {loading ? <Icon name="rotate" size={12} className="search-spinner" /> : <kbd className="search-kbd hide-mobile">/</kbd>}
-        <button type="button" className="search-close only-mobile" onClick={() => { setOpen(false); onClose?.() }} aria-label="Close search">
+        <button type="button" className="search-close only-mobile" onClick={() => { setOpen(false); onClose?.() }} aria-label={t('settings.close')}>
           <Icon name="close" size={14} />
         </button>
       </span>
@@ -116,7 +119,7 @@ const SearchBar = ({ onSelect, inputRef, open: forcedOpen, onClose }) => {
         <div className="search-menu" id={listboxId} role="listbox" aria-label="Search results">
           {list.length > 0 && (
             <>
-              <p className="search-group">{showRecents ? 'Recent' : 'Results'}</p>
+              <p className="search-group">{showRecents ? t('search.recent') : t('search.results')}</p>
               {list.map((place, i) => (
                 <button
                   key={`${place.lat}-${place.lon}-${place.name}-${i}`}
@@ -140,9 +143,9 @@ const SearchBar = ({ onSelect, inputRef, open: forcedOpen, onClose }) => {
             </>
           )}
           {!showRecents && !loading && list.length === 0 && debounced.trim().length >= 2 && (
-            <p className="search-empty">No places match “{debounced.trim()}”</p>
+            <p className="search-empty">{offline ? t('offline.search') : t('search.empty', { query: debounced.trim() })}</p>
           )}
-          {showRecents && list.length === 0 && <p className="search-empty">Type at least 2 characters</p>}
+          {showRecents && list.length === 0 && <p className="search-empty">{offline ? t('offline.search') : t('search.short')}</p>}
         </div>
       )}
     </div>

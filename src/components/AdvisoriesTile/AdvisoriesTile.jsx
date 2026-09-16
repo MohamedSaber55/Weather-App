@@ -1,8 +1,10 @@
+import { useI18n } from '../../context/SettingsContext'
 import React from 'react'
 import { Tile } from '../Tile/Tile'
 import { activityAdvice, clothingAdvice, comfortLabel, getCategory, rainAdvice } from '../../lib/conditions'
 
 const AdvisoriesTile = ({ current, day }) => {
+  const { t } = useI18n()
   const chanceOfRain = day?.daily_chance_of_rain ?? 0
   const activity = activityAdvice({
     category: getCategory(current.condition.code, current.condition.text),
@@ -13,19 +15,19 @@ const AdvisoriesTile = ({ current, day }) => {
   const rain = rainAdvice(chanceOfRain)
 
   const rows = [
-    { tag: 'Wear', text: clothingAdvice(current.feelslike_c).text },
-    { tag: activity.tag, text: activity.text },
-    rain && { tag: 'Rain', text: rain.text },
-    { tag: 'Comfort', text: comfortLabel({ feelslikeC: current.feelslike_c, tempC: current.temp_c, humidity: current.humidity }).text },
+    { tag: 'wear', key: clothingAdvice(current.feelslike_c).key },
+    { tag: activity.tag, key: activity.key },
+    rain && { tag: 'rain', key: rain.key },
+    { tag: 'comfort', key: comfortLabel({ feelslikeC: current.feelslike_c, tempC: current.temp_c, humidity: current.humidity }).key },
   ].filter(Boolean)
 
   return (
-    <Tile label="Advisories" meta="Rule-based" className="t-adv">
+    <Tile label={t('tile.advisories')} meta={t('meta.ruleBased')} className="t-adv">
       <ul className="adv-list">
         {rows.map((row, i) => (
           <li key={`${row.tag}-${i}`} className="adv-row">
-            <span className="adv-tag">{row.tag}</span>
-            <span className="adv-text">{row.text}</span>
+            <span className="adv-tag">{t(`advTag.${row.tag}`)}</span>
+            <span className="adv-text">{t(row.key)}</span>
           </li>
         ))}
       </ul>

@@ -1,3 +1,4 @@
+import { useI18n } from '../../context/SettingsContext'
 import React from 'react'
 import { Tile } from '../Tile/Tile'
 import Gauge from '../Gauge/Gauge'
@@ -11,12 +12,13 @@ const POLLUTANTS = [
 ]
 
 const AirQualityTile = ({ airQuality }) => {
+  const { t } = useI18n()
   const raw = airQuality?.['us-epa-index']
 
   if (raw === undefined || raw === null) {
     return (
-      <Tile label="Air quality" meta="US EPA" className="t-aqi">
-        <p className="tile-empty">No air quality data for this location.</p>
+      <Tile label={t('tile.airQuality')} meta={t('meta.usEpa')} className="t-aqi">
+        <p className="tile-empty">{t('meta.noData')}</p>
       </Tile>
     )
   }
@@ -25,15 +27,15 @@ const AirQualityTile = ({ airQuality }) => {
   const ranges = AQI_COLORS.map((color, i) => ({ from: i, to: i + 1, color, active: i === level.index - 1 }))
 
   return (
-    <Tile label="Air quality" meta={<>US EPA · <span className="no-caps">µg/m³</span></>} className="t-aqi">
+    <Tile label={t('tile.airQuality')} meta={<>{t('meta.usEpa')} · <span className="no-caps">µg/m³</span></>} className="t-aqi">
       <div className="gauge-row">
-        <Gauge ranges={ranges} total={6} value={level.index - 0.5} width={120} label={`US EPA index ${level.index} of 6: ${level.label}`} />
+        <Gauge ranges={ranges} total={6} value={level.index - 0.5} width={120} label={`${t('meta.usEpa')} ${level.index}/6: ${t(level.key)}`} />
         <div className="gauge-readout">
           <span className="num-lg">
             {level.index}
             <span className="num-sub">/6</span>
           </span>
-          <span className="gauge-label">{level.label}</span>
+          <span className="gauge-label">{t(level.key)}</span>
         </div>
       </div>
       <div className="bars hide-mobile">
@@ -51,9 +53,9 @@ const AirQualityTile = ({ airQuality }) => {
           )
         })}
       </div>
-      <p className="tile-note hide-mobile">{level.advice}</p>
+      <p className="tile-note hide-mobile">{t(level.adviceKey)}</p>
       <p className="tile-note only-mobile">
-        {typeof airQuality.pm2_5 === 'number' ? `PM2.5 ${Math.round(airQuality.pm2_5)} µg/m³` : level.label}
+        {typeof airQuality.pm2_5 === 'number' ? `PM2.5 ${Math.round(airQuality.pm2_5)} µg/m³` : t(level.key)}
       </p>
     </Tile>
   )

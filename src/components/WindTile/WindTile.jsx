@@ -1,3 +1,4 @@
+import { useI18n } from '../../context/SettingsContext'
 import React from 'react'
 import { Tile } from '../Tile/Tile'
 import { speedLabel, speedValue } from '../../lib/units'
@@ -42,13 +43,14 @@ const Compass = ({ degree = 0, size = 96 }) => {
 }
 
 const WindTile = ({ current, settings }) => {
+  const { t } = useI18n()
   const unit = settings.speedUnit
   const speed = Math.round(speedValue(current.wind_kph ?? 0, unit))
   const gust = Math.round(speedValue(current.gust_kph ?? 0, unit))
   const degree = current.wind_degree ?? 0
 
   return (
-    <Tile label="Wind" meta={`${current.wind_dir || '--'} ${degree}°`} className="t-wind">
+    <Tile label={t('tile.wind')} meta={`${current.wind_dir || '--'} ${degree}°`} className="t-wind">
       <div className="wind-body">
         <Compass degree={degree} />
         <div className="wind-values">
@@ -56,7 +58,7 @@ const WindTile = ({ current, settings }) => {
             <span className="num-lg">{speed}</span>
             <span className="unit">{speedLabel(unit)}</span>
           </span>
-          <span className="wind-gust">Gust <b>{gust}</b></span>
+          <span className="wind-gust">{t('label.gust')} <b>{gust}</b></span>
         </div>
       </div>
     </Tile>

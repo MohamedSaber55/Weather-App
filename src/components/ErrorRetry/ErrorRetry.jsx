@@ -1,8 +1,10 @@
+import { useI18n } from '../../context/SettingsContext'
 import React from 'react'
 import { Icon } from '../Icons/Icons'
 
-const ErrorRetry = ({ error, onRetry, compact }) => {
-  const message = error?.message || 'The weather service did not respond.'
+const ErrorRetry = ({ error, onRetry, compact, offline = false }) => {
+  const { t } = useI18n()
+  const message = offline ? t('offline.firstRun') : error?.message || t('error.body')
 
   if (compact) {
     return (
@@ -11,7 +13,7 @@ const ErrorRetry = ({ error, onRetry, compact }) => {
         <span className="notice-text">{message}</span>
         <button type="button" className="ghost-btn" onClick={onRetry}>
           <Icon name="rotate" size={12} />
-          Retry
+          {t('error.retry')}
         </button>
       </div>
     )
@@ -21,13 +23,13 @@ const ErrorRetry = ({ error, onRetry, compact }) => {
     <div className="error-pane" role="alert">
       <div className="tile error-tile">
         <header className="tile-head">
-          <h2 className="tile-label">Connection error</h2>
-          <span className="tile-meta">No data</span>
+          <h2 className="tile-label">{offline ? t('offline.title') : t('error.title')}</h2>
+          <span className="tile-meta">{t('meta.noData')}</span>
         </header>
         <p className="error-message">{message}</p>
         <button type="button" className="btn" onClick={onRetry}>
           <Icon name="rotate" size={13} />
-          Retry
+          {t('error.retry')}
         </button>
       </div>
     </div>

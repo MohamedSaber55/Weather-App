@@ -1,8 +1,10 @@
+import { useI18n } from '../../context/SettingsContext'
 import React from 'react'
 import { KeyValue, Tile } from '../Tile/Tile'
 import { formatVisibility } from '../../lib/units'
 
 const PressureTile = ({ current, settings }) => {
+  const { t } = useI18n()
   const mb = current.pressure_mb ?? 0
   const hPa = { value: String(Math.round(mb)), label: 'hPa' }
   const inHg = { value: (mb * 0.0295299830714).toFixed(2), label: 'inHg' }
@@ -10,14 +12,14 @@ const PressureTile = ({ current, settings }) => {
   const vis = formatVisibility(current.vis_km ?? 0, settings.distanceUnit)
 
   return (
-    <Tile label="Pressure" meta="MSL" className="t-pres">
+    <Tile label={t('tile.pressure')} meta={t('meta.msl')} className="t-pres">
       <span className="big-reading">
         <span className="num-xl">{main.value}</span>
         <span className="unit">{main.label}</span>
       </span>
       <div className="kv-list tile-foot">
         <KeyValue label={alternate.label} value={alternate.value} />
-        <KeyValue label="Visibility" value={`${vis.value} ${vis.label}`} />
+        <KeyValue label={t('label.visibility')} value={`${vis.value} ${vis.label}`} />
       </div>
     </Tile>
   )

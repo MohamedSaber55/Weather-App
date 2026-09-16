@@ -13,10 +13,12 @@ async function handleError(response) {
   throw new Error(message)
 }
 
-export async function getWeather(q, { days = 7, aqi = true, alerts = true, signal } = {}) {
+export async function getWeather(q, { days = 7, aqi = true, alerts = true, lang, signal } = {}) {
   const params = new URLSearchParams({ key: WEATHER_API_KEY, q, days: String(days) })
   if (aqi) params.set('aqi', 'yes')
   if (alerts) params.set('alerts', 'yes')
+  // WeatherAPI localises condition text itself, so "Sunny" arrives as "مشمس"
+  if (lang && lang !== 'en') params.set('lang', lang)
   const res = await fetch(`${BASE}/forecast.json?${params.toString()}`, { signal })
   if (!res.ok) await handleError(res)
   return res.json()

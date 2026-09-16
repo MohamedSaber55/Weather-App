@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import SearchBar from '../SearchBar/SearchBar'
 import { Icon, Logo } from '../Icons/Icons'
-import { useSettings } from '../../context/SettingsContext'
+import { useI18n, useSettings } from '../../context/SettingsContext'
 import { countryCode } from '../../lib/countries'
 import { coordsLabel, utcOffsetLabel } from '../../lib/units'
 
@@ -16,8 +16,11 @@ const Header = ({
   onUseCurrentLocation,
   locating,
   onOpenSettings,
+  onOpenPlaces,
+  defaultName,
 }) => {
   const { settings, update } = useSettings()
+  const { t } = useI18n()
   const inputRef = useRef(null)
   const [searchOpen, setSearchOpen] = useState(false)
   const isDark = settings.theme !== 'light'
@@ -35,7 +38,7 @@ const Header = ({
     return () => document.removeEventListener('keydown', onKeyDown)
   }, [])
 
-  const name = location?.name || 'Locating'
+  const name = location?.name || '—'
   const code = location ? countryCode(location.country) : ''
   const offset = location ? utcOffsetLabel(location.localtime, location.localtime_epoch) : null
   const coords = location ? coordsLabel(location.lat, location.lon) : ''
@@ -52,7 +55,7 @@ const Header = ({
         <span className="topbar-coords hide-mobile">{[coords, offset].filter(Boolean).join(' · ')}</span>
       </div>
 
-      <nav className="topbar-tabs" aria-label="Saved locations">
+      <nav className="topbar-tabs" aria-label={t('places.title')}>
         {tabs.map((place, i) => (
           <button
             key={`${place.name}-${place.lat}-${i}`}
@@ -61,6 +64,7 @@ const Header = ({
             onClick={() => onSelectPlace(place)}
             aria-current={sameName(place.name, location?.name) ? 'true' : undefined}
           >
+            {sameName(place.name, defaultName) && <Icon name="home" size={11} />}
             {place.name}
           </button>
         ))}
@@ -70,16 +74,19 @@ const Header = ({
           onClick={onToggleFavorite}
           aria-pressed={isFavorite}
           disabled={!location}
-          title={isFavorite ? 'Remove from saved locations' : 'Save this location'}
+          title={isFavorite ? t('header.saved') : t('header.save')}
         >
           <Icon name="star" size={12} fill={isFavorite ? 'currentColor' : 'none'} />
-          {isFavorite ? 'Saved' : 'Save'}
+          {isFavorite ? t('header.saved') : t('header.save')}
+        </button>
+        <button type="button" className="tab tab-add" onClick={onOpenPlaces} title={t('places.open')} aria-label={t('places.open')}>
+          <Icon name="plus" size={13} />
         </button>
       </nav>
 
       <div className="topbar-tools">
         <SearchBar inputRef={inputRef} onSelect={onSelectPlace} open={searchOpen} onClose={() => setSearchOpen(false)} />
-        <div className="unit-toggle hide-mobile" role="group" aria-label="Temperature unit">
+        <div className="unit-toggle hide-mobile" role="group" aria-label={t('settings.temperature')}>
           {['C', 'F'].map(u => (
             <button
               key={u}
@@ -99,7 +106,7 @@ const Header = ({
             setSearchOpen(true)
             requestAnimationFrame(() => inputRef.current?.focus())
           }}
-          aria-label="Open search"
+          aria-label={t('places.open')}
         >
           <Icon name="search" size={16} />
         </button>
@@ -108,8 +115,8 @@ const Header = ({
           className="icon-btn hide-mobile"
           onClick={onUseCurrentLocation}
           disabled={locating}
-          aria-label="Use my current location"
-          title="Use my current location"
+          aria-label={t('header.locate')}
+          title={t('header.locate')}
         >
           <Icon name={locating ? 'rotate' : 'locate'} size={16} className={locating ? 'is-spinning' : ''} />
         </button>
@@ -117,12 +124,12 @@ const Header = ({
           type="button"
           className="icon-btn hide-mobile"
           onClick={() => update({ theme: isDark ? 'light' : 'dark' })}
-          aria-label="Toggle light or dark theme"
-          title="Toggle theme"
+          aria-label={t('header.theme')}
+          title={t('header.theme')}
         >
           <Icon name={isDark ? 'moon' : 'sun'} size={16} />
         </button>
-        <button type="button" className="icon-btn" onClick={onOpenSettings} aria-label="Open settings" title="Settings">
+        <button type="button" className="icon-btn" onClick={onOpenSettings} aria-label={t('header.settings')} title={t('settings.title')}>
           <Icon name="sliders" size={16} />
         </button>
       </div>

@@ -1860,6 +1860,326 @@ button:disabled {
   }
 }
 
+/* ============================================================
+   PLACES + MAP PICKER
+   ============================================================ */
+
+.modal-backdrop-wx {
+  position: fixed;
+  inset: 0;
+  z-index: 1600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.55);
+}
+
+.places-dialog,
+.map-dialog {
+  display: flex;
+  flex-direction: column;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 30px 60px -30px rgba(0, 0, 0, 0.8);
+  overflow: hidden;
+}
+
+.places-dialog {
+  width: min(460px, 100%);
+  max-height: 80vh;
+}
+
+.map-dialog {
+  width: min(900px, 100%);
+  height: min(680px, 90vh);
+}
+
+.places-head,
+.map-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.places-body {
+  padding: 16px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.places-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.places-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-inline-end: 8px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--sunken);
+
+  &.is-current {
+    border-color: var(--amber);
+  }
+}
+
+.places-main {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+  padding: 12px;
+  text-align: start;
+  color: var(--muted);
+}
+
+.places-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.places-name {
+  @include label(14px);
+  color: var(--text);
+}
+
+.places-region {
+  @include mono(10px);
+  color: var(--dim);
+}
+
+.places-tag {
+  @include label(9px);
+  color: var(--bg);
+  background: var(--amber);
+  padding: 3px 7px;
+  border-radius: 3px;
+}
+
+.places-empty,
+.places-note {
+  @include mono(12px);
+  color: var(--dim);
+  line-height: 1.5;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.places-actions,
+.map-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.places-actions .btn,
+.map-actions .btn {
+  flex: 1;
+}
+
+.map-body {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+}
+
+.map-canvas {
+  position: absolute;
+  inset: 0;
+  background: var(--sunken);
+}
+
+.map-hint {
+  position: absolute;
+  top: 12px;
+  inset-inline: 12px;
+  z-index: 500;
+  padding: 8px 12px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  @include mono(11px);
+  color: var(--muted);
+  text-align: center;
+}
+
+.map-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 14px 16px;
+  border-top: 1px solid var(--border);
+}
+
+.map-picked {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  color: var(--amber);
+}
+
+.map-name {
+  @include label(14px);
+  color: var(--text);
+}
+
+.map-coords {
+  @include mono(11px);
+  color: var(--dim);
+  margin-top: 2px;
+}
+
+.map-pin {
+  color: var(--amber);
+}
+
+.btn.is-primary {
+  background: var(--amber);
+  border-color: var(--amber);
+  color: var(--bg);
+
+  &:hover:not(:disabled) {
+    color: var(--bg);
+    opacity: 0.9;
+  }
+}
+
+.icon-btn.is-ghost {
+  border-color: transparent;
+  width: 32px;
+  height: 32px;
+}
+
+.tab-add {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  align-self: center;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text);
+}
+
+.live-dot.is-offline {
+  background: var(--dim);
+}
+
+/* ============================================================
+   RIGHT TO LEFT
+   ============================================================ */
+
+[dir='rtl'] {
+  .drawer {
+    right: auto;
+    left: 0;
+    border-left: 0;
+    border-right: 1px solid var(--border);
+    transform: translateX(-100%);
+
+    &.is-open {
+      transform: none;
+    }
+  }
+
+  .radar-coords {
+    left: auto;
+    right: 10px;
+  }
+
+  .fc-table th,
+  .fc-table td {
+    text-align: right;
+  }
+
+  .fc-table .num {
+    text-align: left;
+  }
+
+  .adv-tag {
+    text-align: right;
+  }
+
+  /* charts read left-to-right in both languages, like every weather chart */
+  .chart,
+  .chart text {
+    direction: ltr;
+  }
+
+  /* readings stay left-to-right so digits and units keep their order */
+  .num-xl,
+  .num-lg,
+  .temp-readout,
+  .temp-value,
+  .temp-sub,
+  .stat-value,
+  .wind-gust,
+  .moon-rise,
+  .uv-bar-label,
+  .gauge-readout .num-lg,
+  .search-item-region,
+  .tile-meta,
+  .kv-value,
+  .rail,
+  .scale,
+  .topbar-coords,
+  .statusbar,
+  .wind-speed,
+  .big-reading,
+  .places-region,
+  .map-coords,
+  .wx-footer,
+  .bar-value,
+  .fc-table .num {
+    direction: ltr;
+    unicode-bidi: isolate;
+  }
+
+  .statusbar,
+  .wx-footer {
+    flex-direction: row-reverse;
+  }
+}
+
+@media (max-width: 640px) {
+  .modal-backdrop-wx {
+    padding: 0;
+    align-items: flex-end;
+  }
+
+  .places-dialog {
+    width: 100%;
+    max-height: 88vh;
+    border-radius: var(--radius) var(--radius) 0 0;
+  }
+
+  .map-dialog {
+    width: 100%;
+    height: 92vh;
+    border-radius: var(--radius) var(--radius) 0 0;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

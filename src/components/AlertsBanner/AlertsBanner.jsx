@@ -1,3 +1,4 @@
+import { useI18n } from '../../context/SettingsContext'
 import React, { useState } from 'react'
 import { Icon } from '../Icons/Icons'
 import { formatTime } from '../../lib/units'
@@ -18,11 +19,12 @@ const HAZARD_COLORS = {
 }
 
 const AlertsBanner = ({ alerts, settings }) => {
+  const { t } = useI18n()
   const [open, setOpen] = useState(false)
   const alert = alerts?.alert?.[0]
   if (!alert) return null
 
-  const title = alert.event || alert.headline || 'Weather alert'
+  const title = alert.event || alert.headline || t('alert.title')
   const color = Object.entries(HAZARD_COLORS).find(([k]) => title.toLowerCase().includes(k))?.[1] || '#FF9800'
   const extra = (alerts.alert?.length || 1) - 1
 
@@ -30,16 +32,16 @@ const AlertsBanner = ({ alerts, settings }) => {
     <section className="alert-strip" role="alert" style={{ '--hazard': color }}>
       <span className="alert-tag">
         <Icon name="alert" size={13} />
-        Alert
+        {t('alert.tag')}
       </span>
       <div className="alert-body">
         <p className="alert-title">{title}</p>
         <p className="alert-meta">
           {[
             alert.areas,
-            alert.effective ? `From ${alert.effective.split(' ')[0]}` : null,
-            alert.expires ? `until ${formatTime(alert.expires, settings.hourFormat)}` : null,
-            extra > 0 ? `+${extra} more` : null,
+            alert.effective ? t('alert.from', { date: alert.effective.split(' ')[0] }) : null,
+            alert.expires ? t('alert.until', { time: formatTime(alert.expires, settings.hourFormat) }) : null,
+            extra > 0 ? t('alert.more', { count: extra }) : null,
           ]
             .filter(Boolean)
             .join(' · ')}
@@ -53,7 +55,7 @@ const AlertsBanner = ({ alerts, settings }) => {
         )}
       </div>
       <button type="button" className="ghost-btn" onClick={() => setOpen(o => !o)} aria-expanded={open}>
-        {open ? 'Hide' : 'Details'}
+        {open ? t('alert.hide') : t('alert.details')}
         <Icon name="chevronDown" size={12} className={open ? 'is-flipped' : ''} />
       </button>
     </section>

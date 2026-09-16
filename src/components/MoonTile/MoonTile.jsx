@@ -1,3 +1,4 @@
+import { useI18n } from '../../context/SettingsContext'
 import React from 'react'
 import { Tile } from '../Tile/Tile'
 import { moonIsWaning } from '../../lib/conditions'
@@ -28,17 +29,18 @@ const MoonDisc = ({ illumination = 0, waning = false, size = 56 }) => {
 }
 
 const MoonTile = ({ astro, settings }) => {
+  const { t } = useI18n()
   const illumination = Number(astro?.moon_illumination)
   const phase = astro?.moon_phase || 'Moon'
   const rise = astro?.moonrise
 
   return (
-    <Tile label="Moon" meta={Number.isFinite(illumination) ? `Illum ${Math.round(illumination)}%` : ''} className="t-moon">
+    <Tile label={t('tile.moon')} meta={Number.isFinite(illumination) ? t('meta.illum', { percent: Math.round(illumination) }) : ''} className="t-moon">
       <div className="moon-body">
         <MoonDisc illumination={Number.isFinite(illumination) ? illumination : 0} waning={moonIsWaning(phase)} />
         <div className="moon-text">
-          <span className="moon-phase">{phase}</span>
-          <span className="moon-rise">Rise {rise && /\d/.test(rise) ? formatTime(rise, settings.hourFormat) : '--'}</span>
+          <span className="moon-phase">{t(`moon.${phase}`)}</span>
+          <span className="moon-rise">{t('label.rise')} {rise && /\d/.test(rise) ? formatTime(rise, settings.hourFormat) : '--'}</span>
         </div>
       </div>
     </Tile>

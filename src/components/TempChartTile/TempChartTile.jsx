@@ -1,3 +1,4 @@
+import { useI18n } from '../../context/SettingsContext'
 import React, { useState } from 'react'
 import { Tile } from '../Tile/Tile'
 import { useElementWidth } from '../../hooks/useElementWidth'
@@ -21,6 +22,7 @@ function smoothPath(points) {
 }
 
 const TempChartTile = ({ day, current, location, settings }) => {
+  const { t } = useI18n()
   const [wrapRef, width] = useElementWidth(898)
   const [hover, setHover] = useState(null)
   const hours = day?.hour || []
@@ -92,7 +94,7 @@ const TempChartTile = ({ day, current, location, settings }) => {
         wind: speedValue(hourData.wind_kph ?? 0, speedUnit),
       }
     : {
-        title: `${formatTime(location.localtime, settings.hourFormat)} · Now`,
+        title: `${formatTime(location.localtime, settings.hourFormat)} · ${t('label.now')}`,
         temp: tempValue(current.temp_c, unit),
         feels: tempValue(current.feelslike_c, unit),
         uv: current.uv,
@@ -109,7 +111,7 @@ const TempChartTile = ({ day, current, location, settings }) => {
   }
 
   return (
-    <Tile label="Temperature · 24 h" meta={`Hourly · °${unit} · Shaded = night`} className="t-chart">
+    <Tile label={t('tile.chart')} meta={t('meta.hourly', { unit })} className="t-chart">
       <div className="chart-wrap" ref={wrapRef}>
         <svg
           className="chart"
@@ -141,9 +143,9 @@ const TempChartTile = ({ day, current, location, settings }) => {
             <rect width={TIP_W} height={TIP_H} rx="4" />
             <text className="chart-tip-title" x="10" y="18">{tip.title}</text>
             <text className="chart-tip-temp" x="10" y="38">{fixed1(tip.temp)}°</text>
-            <text className="chart-tip-feels" x="62" y="38">feels {fixed1(tip.feels)}</text>
+            <text className="chart-tip-feels" x="62" y="38">{t('label.feelsShort')} {fixed1(tip.feels)}</text>
             <text className="chart-tip-meta" x="10" y="54">
-              UV {tip.uv ?? '--'} · Rain {tip.rain}% · {Math.round(tip.wind)} {speedLabel(speedUnit)}
+              {t('label.uv')} {tip.uv ?? '--'} · {t('label.rain')} {tip.rain}% · {Math.round(tip.wind)} {speedLabel(speedUnit)}
             </text>
           </g>
           {hours.map((h, i) => (i % every === 0 ? (

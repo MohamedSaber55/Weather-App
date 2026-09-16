@@ -35,6 +35,31 @@ behind a tab.
 - **Error/retry UI + skeletons**, race-safe fetching with a 5-minute in-memory
   cache and a silent refresh every 10 minutes
 
+## Saved places and the default location
+
+The **+** next to the location tabs opens Places: everything you have saved, with
+two ways to add — search by name, or **pick a spot on a map** (Leaflet over
+OpenStreetMap; the coordinates are run through WeatherAPI search so the place
+gets a real name). The house icon marks the **default** place, which is what the
+dashboard opens on and is flagged in the tab strip. The bin removes a place.
+
+## Arabic and right-to-left
+
+Settings has a language switch (English / العربية). Arabic mirrors the whole
+layout via `dir="rtl"`, translates every label, advisory, air-quality and UV
+level, and asks WeatherAPI for Arabic condition text. Readings, units and the
+hourly chart stay left-to-right inside the mirrored layout, the way charts and
+numbers are normally set in Arabic typography. Digits stay Western, as Egypt
+writes them.
+
+## Without a connection
+
+The last response per location is kept in localStorage, so opening the site
+offline shows that reading instead of an error: the status line reads
+`Offline · 20 min ago`, a banner names the age of the reading with a Retry
+button, and the radar tile and city search explain what needs the internet. The
+ten-minute refresh pauses while offline and fires once the connection returns.
+
 ## Data source
 
 All data comes from [WeatherAPI.com](https://www.weatherapi.com). Because this is a static

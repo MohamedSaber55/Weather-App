@@ -34,19 +34,9 @@ export function getCategory(code, text) {
   return 'clear'
 }
 
-export function conditionTitleByCategory(category) {
-  const map = {
-    clear: 'Clear sky',
-    partly: 'Partly cloudy',
-    cloudy: 'Cloudy',
-    fog: 'Foggy',
-    rain: 'Rainy',
-    snow: 'Snowy',
-    sleet: 'Wintry mix',
-    thunder: 'Thunderstorms',
-    dust: 'Dust and sand',
-  }
-  return map[category] || 'Weather'
+// translation key for the category, e.g. "cond.partly"
+export function conditionTitleKey(category) {
+  return `cond.${category || 'clear'}`
 }
 
 // WeatherAPI condition text shortened for narrow table cells ("Partly cloudy" -> "Pt cloudy")
@@ -77,43 +67,36 @@ export const UV_RANGES = [
 ]
 
 export function uvLevel(uv) {
-  if (uv <= 2) return { label: 'Low', color: '#4CAF50' }
-  if (uv <= 5) return { label: 'Moderate', color: '#FFC107' }
-  if (uv <= 7) return { label: 'High', color: '#FF9800' }
-  if (uv <= 10) return { label: 'Very high', color: '#F44336' }
-  return { label: 'Extreme', color: '#9C27B0' }
+  if (uv <= 2) return { key: 'uv.low', color: '#4CAF50' }
+  if (uv <= 5) return { key: 'uv.moderate', color: '#FFC107' }
+  if (uv <= 7) return { key: 'uv.high', color: '#FF9800' }
+  if (uv <= 10) return { key: 'uv.veryHigh', color: '#F44336' }
+  return { key: 'uv.extreme', color: '#9C27B0' }
 }
 
-export function uvBurnTime(uv) {
-  if (uv <= 2) return '30+ min'
-  if (uv <= 5) return '~20 min'
-  if (uv <= 7) return '~12 min'
-  if (uv <= 10) return '~6 min'
-  return '<5 min'
+export function uvBurnTimeKey(uv) {
+  if (uv <= 2) return 'uvBurn.30'
+  if (uv <= 5) return 'uvBurn.20'
+  if (uv <= 7) return 'uvBurn.12'
+  if (uv <= 10) return 'uvBurn.6'
+  return 'uvBurn.5'
 }
 
-export function uvProtection(uv) {
-  if (uv < 3) return 'None needed'
-  if (uv < 6) return 'SPF 30+'
-  if (uv < 8) return 'SPF 30+ · 11–16'
-  return 'SPF 50+ · 11–16'
+export function uvProtectionKey(uv) {
+  if (uv < 3) return 'uvProtect.none'
+  if (uv < 6) return 'uvProtect.spf30'
+  if (uv < 8) return 'uvProtect.spf30midday'
+  return 'uvProtect.spf50midday'
 }
 
-const AQI_LEVELS = [
-  { label: 'Good', color: '#4CAF50', advice: 'Air quality is satisfactory, with little or no risk.' },
-  { label: 'Moderate', color: '#FFC107', advice: 'Sensitive groups: limit prolonged outdoor exertion.' },
-  { label: 'Unhealthy for sensitive groups', color: '#FF9800', advice: 'Children, older adults and people with lung conditions should reduce outdoor activity.' },
-  { label: 'Unhealthy', color: '#F44336', advice: 'Everyone may feel effects. Avoid prolonged outdoor exertion.' },
-  { label: 'Very unhealthy', color: '#9C27B0', advice: 'Health alert: stay indoors when possible.' },
-  { label: 'Hazardous', color: '#880E4F', advice: 'Emergency conditions. Avoid all outdoor activity.' },
-]
+const AQI_COLORS_LIST = ['#4CAF50', '#FFC107', '#FF9800', '#F44336', '#9C27B0', '#880E4F']
 
-export const AQI_COLORS = AQI_LEVELS.map(l => l.color)
+export const AQI_COLORS = AQI_COLORS_LIST
 
 // WeatherAPI's `us-epa-index` is the US EPA category (1–6), not the 0–500 AQI number
 export function aqiLevel(index) {
   const i = Math.min(6, Math.max(1, Math.round(Number(index) || 1)))
-  return { index: i, ...AQI_LEVELS[i - 1] }
+  return { index: i, color: AQI_COLORS_LIST[i - 1], key: `aqi.${i}`, adviceKey: `aqiAdvice.${i}` }
 }
 
 const MOON_ABBREVIATIONS = {
@@ -137,39 +120,39 @@ export function moonIsWaning(phase) {
 
 export function clothingAdvice(feelslikeC) {
   const c = Number(feelslikeC)
-  if (c >= 32) return { text: 'Tank top, shorts and open shoes — it is very hot.' }
-  if (c >= 25) return { text: 'Short sleeves and light fabrics.' }
-  if (c >= 18) return { text: 'A light jacket or long sleeves feels right.' }
-  if (c >= 10) return { text: 'A warm coat, sweater and closed shoes.' }
-  if (c >= 0) return { text: 'Heavy winter coat, hat, scarf and gloves.' }
-  return { text: 'Insulated gear — extreme cold. Layer up fully.' }
+  if (c >= 32) return { key: 'wear.veryHot' }
+  if (c >= 25) return { key: 'wear.hot' }
+  if (c >= 18) return { key: 'wear.mild' }
+  if (c >= 10) return { key: 'wear.cool' }
+  if (c >= 0) return { key: 'wear.cold' }
+  return { key: 'wear.freezing' }
 }
 
 export function rainAdvice(chance) {
-  if (chance >= 60) return { text: 'High rain chance — take an umbrella.' }
-  if (chance >= 30) return { text: 'Some rain possible — a compact umbrella is smart.' }
+  if (chance >= 60) return { key: 'rain.high' }
+  if (chance >= 30) return { key: 'rain.some' }
   return null
 }
 
 export function activityAdvice({ category, uv, windKph, chanceOfRain }) {
-  if (category === 'dust') return { tag: 'Dust', text: 'Dust in the air — keep windows shut and wear a mask outdoors.' }
-  if (category === 'thunder') return { tag: 'Storm', text: 'Thunderstorms — postpone outdoor activities.' }
-  if (category === 'snow' || category === 'sleet') return { tag: 'Snow', text: 'Snow/ice — drive carefully, dress warm.' }
-  if (chanceOfRain >= 70) return { tag: 'Rain', text: 'Heavy rain — indoor plan recommended.' }
-  if (category === 'rain' && chanceOfRain >= 40) return { tag: 'Rain', text: 'Rain likely — bring gear if heading out.' }
-  if (uv >= 8) return { tag: 'UV', text: 'Extreme UV — sunscreen SPF 50+, avoid midday sun.' }
-  if (uv >= 6) return { tag: 'UV', text: 'High UV — wear SPF 30+ and sunglasses.' }
-  if (windKph >= 40) return { tag: 'Wind', text: 'Very windy — caution near trees and scaffolding.' }
-  if (windKph >= 25) return { tag: 'Wind', text: 'Breezy — great for kites, harder for cycling.' }
-  if (category === 'clear' || category === 'partly') return { tag: 'Outdoor', text: 'Pleasant — a great day to be outdoors.' }
-  return { tag: 'Outdoor', text: 'A decent day for light outdoor activity.' }
+  if (category === 'dust') return { tag: 'dust', key: 'activity.dust' }
+  if (category === 'thunder') return { tag: 'storm', key: 'activity.storm' }
+  if (category === 'snow' || category === 'sleet') return { tag: 'snow', key: 'activity.snow' }
+  if (chanceOfRain >= 70) return { tag: 'rain', key: 'activity.heavyRain' }
+  if (category === 'rain' && chanceOfRain >= 40) return { tag: 'rain', key: 'activity.rain' }
+  if (uv >= 8) return { tag: 'uv', key: 'activity.extremeUv' }
+  if (uv >= 6) return { tag: 'uv', key: 'activity.highUv' }
+  if (windKph >= 40) return { tag: 'wind', key: 'activity.veryWindy' }
+  if (windKph >= 25) return { tag: 'wind', key: 'activity.breezy' }
+  if (category === 'clear' || category === 'partly') return { tag: 'outdoor', key: 'activity.pleasant' }
+  return { tag: 'outdoor', key: 'activity.ok' }
 }
 
 export function comfortLabel({ feelslikeC, tempC, humidity }) {
   const delta = Number(feelslikeC) - Number(tempC)
-  if (humidity >= 80 && tempC >= 27) return { text: 'Hot and muggy — feels stickier than the reading.' }
-  if (delta >= 3) return { text: 'Feels warmer than the actual temperature.' }
-  if (delta <= -3) return { text: 'Wind chill makes it feel noticeably colder.' }
-  if (humidity >= 65) return { text: 'Moderately humid — comfortable but a little sticky.' }
-  return { text: 'Comfortable humidity levels.' }
+  if (humidity >= 80 && tempC >= 27) return { key: 'comfort.muggy' }
+  if (delta >= 3) return { key: 'comfort.warmer' }
+  if (delta <= -3) return { key: 'comfort.colder' }
+  if (humidity >= 65) return { key: 'comfort.humid' }
+  return { key: 'comfort.fine' }
 }

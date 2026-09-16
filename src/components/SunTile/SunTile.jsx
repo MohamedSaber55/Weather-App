@@ -1,3 +1,4 @@
+import { useI18n } from '../../context/SettingsContext'
 import React from 'react'
 import { KeyValue, Tile } from '../Tile/Tile'
 import { clamp, clockHours, dayLength, formatTime } from '../../lib/units'
@@ -27,6 +28,7 @@ const SunArc = ({ progress }) => {
 }
 
 const SunTile = ({ astro, localtime, settings }) => {
+  const { t } = useI18n()
   const rise = clockHours(astro?.sunrise)
   const set = clockHours(astro?.sunset)
   const now = clockHours(localtime)
@@ -36,13 +38,13 @@ const SunTile = ({ astro, localtime, settings }) => {
   const isNight = !hasWindow || raw <= 0 || raw >= 1
 
   return (
-    <Tile label="Sun" meta={`Daylight ${dayLength(astro?.sunrise, astro?.sunset) || '--'}`} className="t-sun">
+    <Tile label={t('tile.sun')} meta={t('meta.daylight', { length: dayLength(astro?.sunrise, astro?.sunset) || '--' })} className="t-sun">
       <div className="sun-body">
         <SunArc progress={isNight ? 0 : progress} />
         <div className="kv-list">
-          <KeyValue label="Rise" value={formatTime(astro?.sunrise, settings.hourFormat)} />
-          <KeyValue label="Set" value={formatTime(astro?.sunset, settings.hourFormat)} />
-          <KeyValue label="Elapsed" value={isNight ? 'Night' : `${Math.round(progress * 100)}%`} accent />
+          <KeyValue label={t('label.rise')} value={formatTime(astro?.sunrise, settings.hourFormat)} />
+          <KeyValue label={t('label.set')} value={formatTime(astro?.sunset, settings.hourFormat)} />
+          <KeyValue label={t('label.elapsed')} value={isNight ? t('label.night') : `${Math.round(progress * 100)}%`} accent />
         </div>
       </div>
     </Tile>

@@ -1,13 +1,15 @@
+import { useI18n } from '../../context/SettingsContext'
 import React from 'react'
 import { KeyValue, Tile } from '../Tile/Tile'
 import Gauge from '../Gauge/Gauge'
-import { UV_RANGES, uvBurnTime, uvLevel, uvProtection } from '../../lib/conditions'
+import { UV_RANGES, uvBurnTimeKey, uvLevel, uvProtectionKey } from '../../lib/conditions'
 import { formatTime, parseClock } from '../../lib/units'
 
 const BAR_FROM = 7
 const BAR_TO = 18
 
 const UvTile = ({ uv, hours = [], nowHour, settings }) => {
+  const { t } = useI18n()
   const value = typeof uv === 'number' ? uv : 0
   const level = uvLevel(value)
   const ranges = UV_RANGES.map(r => ({ ...r, active: value >= r.from && value < r.to }))
@@ -19,12 +21,12 @@ const UvTile = ({ uv, hours = [], nowHour, settings }) => {
   const peak = hours.reduce((best, h) => ((h.uv ?? 0) > (best?.uv ?? -1) ? h : best), null)
 
   return (
-    <Tile label="UV index" meta={peak?.uv ? `Peak ${formatTime(peak.time, settings.hourFormat)}` : 'Today'} className="t-uv">
+    <Tile label={t('tile.uv')} meta={peak?.uv ? t('meta.peak', { time: formatTime(peak.time, settings.hourFormat) }) : t('meta.today')} className="t-uv">
       <div className="gauge-row">
-        <Gauge ranges={ranges} total={12} value={Math.min(value, 12)} width={120} label={`UV index ${Math.round(value)}: ${level.label}`} />
+        <Gauge ranges={ranges} total={12} value={Math.min(value, 12)} width={120} label={`${t('tile.uv')} ${Math.round(value)}: ${t(level.key)}`} />
         <div className="gauge-readout">
           <span className="num-lg">{Math.round(value)}</span>
-          <span className="gauge-label">{level.label}</span>
+          <span className="gauge-label">{t(level.key)}</span>
         </div>
       </div>
       {daylight.length > 0 && (
@@ -42,10 +44,10 @@ const UvTile = ({ uv, hours = [], nowHour, settings }) => {
         </div>
       )}
       <div className="kv-list hide-mobile">
-        <KeyValue label="Burn time" value={uvBurnTime(value)} />
-        <KeyValue label="Protect" value={uvProtection(value)} />
+        <KeyValue label={t('label.burnTime')} value={t(uvBurnTimeKey(value))} />
+        <KeyValue label={t('label.protect')} value={t(uvProtectionKey(value))} />
       </div>
-      <p className="tile-note only-mobile">Burn {uvBurnTime(value)}</p>
+      <p className="tile-note only-mobile">{t('label.burnTime')} {t(uvBurnTimeKey(value))}</p>
     </Tile>
   )
 }

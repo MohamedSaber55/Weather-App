@@ -1,3 +1,4 @@
+import { useI18n } from '../../context/SettingsContext'
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
@@ -28,7 +29,8 @@ function readFrames(meta) {
 
 const markerHtml = name => `<span class="radar-marker-cross"><svg width="36" height="36" viewBox="0 0 36 36" aria-hidden="true"><rect x="9" y="9" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M0 18H9M27 18H36M18 0V9M18 27V36" stroke="currentColor" stroke-width="1.5"/></svg></span><span class="radar-marker-label">${escapeHtml(name)}</span>`
 
-const RadarTile = ({ lat, lon, name }) => {
+const RadarTile = ({ lat, lon, name, offline = false }) => {
+  const { t } = useI18n()
   const mapDiv = useRef(null)
   const mapRef = useRef(null)
   const baseRef = useRef(null)
@@ -131,7 +133,11 @@ const RadarTile = ({ lat, lon, name }) => {
 
   const frame = frames[frameIdx]
   const offsetMin = frame ? Math.round((frame.time * 1000 - Date.now()) / 60000) : null
-  const metaLabel = offsetMin == null ? 'RainViewer' : `RainViewer · ${offsetMin > 0 ? '+' : '−'}${Math.abs(offsetMin)} min`
+  const metaLabel = offline
+    ? t('meta.offline')
+    : offsetMin == null
+      ? t('radar.source')
+      : `${t('radar.source')} · ${offsetMin > 0 ? '+' : '−'}${Math.abs(offsetMin)} min`
 
   const cycleOpacity = () => {
     const i = OPACITY_STEPS.indexOf(opacity)
@@ -146,7 +152,7 @@ const RadarTile = ({ lat, lon, name }) => {
   }
 
   return (
-    <Tile label="Radar" meta={metaLabel} className="t-radar">
+    <Tile label={t('tile.radar')} meta={metaLabel} className="t-radar">
       <div className="radar-map">
         <div ref={mapDiv} className="radar-leaflet" role="region" aria-label={`Radar map near ${name}`} />
         <div className="radar-grid" aria-hidden="true" />
@@ -158,7 +164,7 @@ const RadarTile = ({ lat, lon, name }) => {
           className="icon-btn is-small"
           onClick={() => setPlaying(p => !p)}
           disabled={frames.length < 2}
-          aria-label={playing ? 'Pause radar loop' : 'Play radar loop'}
+          aria-label={playing ? t('radar.pause') : t('radar.play')}
         >
           <Icon name={playing ? 'pause' : 'play'} size={12} fill={playing ? 'none' : 'currentColor'} strokeWidth={playing ? 2 : 1.6} />
         </button>
@@ -181,10 +187,10 @@ const RadarTile = ({ lat, lon, name }) => {
             ))}
           </div>
         ) : (
-          <span className="radar-empty">Radar frames unavailable</span>
+          <span className="radar-empty">{offline ? t('offline.radar') : t('radar.unavailable')}</span>
         )}
         <button type="button" className="radar-opacity" onClick={cycleOpacity} aria-label={`Radar opacity ${Math.round(opacity * 100)}%, change`}>
-          Opacity {Math.round(opacity * 100)}%
+          {t('radar.opacity', { percent: Math.round(opacity * 100) })}
         </button>
       </div>
     </Tile>

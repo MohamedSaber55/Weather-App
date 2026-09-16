@@ -124,17 +124,19 @@ const DAYS_SHORT = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 const MONTHS_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
 // "2026-09-14 12:40" -> "Mon 14 Sep 2026"
-export function dateStamp(localtime) {
+export function dateStamp(localtime, calendar) {
   const d = localTime(localtime)
   if (!d) return ''
-  return `${DAYS_SHORT[d.getDay()]} ${d.getDate()} ${MONTHS_SHORT[d.getMonth()]} ${d.getFullYear()}`
+  const days = calendar?.days || DAYS_SHORT
+  const months = calendar?.months || MONTHS_SHORT
+  return `${days[d.getDay()]} ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`
 }
 
 // "2026-09-14" -> "Mon 14"
-export function dayStamp(date) {
+export function dayStamp(date, calendar) {
   const d = new Date(`${date}T12:00:00`)
   if (Number.isNaN(d.getTime())) return String(date || '')
-  return `${DAYS_SHORT[d.getDay()]} ${d.getDate()}`
+  return `${(calendar?.days || DAYS_SHORT)[d.getDay()]} ${d.getDate()}`
 }
 
 // "2026-09-14 12:30" + 15 -> "12:45" (in the location's wall clock)

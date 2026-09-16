@@ -1,3 +1,4 @@
+import { useI18n } from '../../context/SettingsContext'
 import React, { useState } from 'react'
 import { KeyValue, Tile } from '../Tile/Tile'
 import { ConditionIcon } from '../Icons/Icons'
@@ -5,6 +6,7 @@ import { moonAbbreviation, shortCondition } from '../../lib/conditions'
 import { dayStamp, fixed1, formatTime, speedLabel, speedValue, tempValue } from '../../lib/units'
 
 const ForecastTile = ({ days, settings }) => {
+  const { t, days: dayNames } = useI18n()
   const [selected, setSelected] = useState(0)
   if (!days?.length) return null
 
@@ -13,7 +15,7 @@ const ForecastTile = ({ days, settings }) => {
   const moonIllumination = detail.astro?.moon_illumination
 
   return (
-    <Tile label="Forecast" meta={`${days.length} ${days.length === 1 ? 'day' : 'days'}`} className="t-fc">
+    <Tile label={t('tile.forecast')} meta={days.length === 1 ? t('meta.day', { count: 1 }) : t('meta.days', { count: days.length })} className="t-fc">
       <table className="fc-table">
         <colgroup>
           <col className="fc-col-day" />
@@ -25,12 +27,12 @@ const ForecastTile = ({ days, settings }) => {
         </colgroup>
         <thead>
           <tr>
-            <th scope="col">Day</th>
-            <th scope="col">Cond</th>
-            <th scope="col" className="num">Lo</th>
-            <th scope="col" className="num">Hi</th>
-            <th scope="col" className="num">Rain</th>
-            <th scope="col" className="num hide-mobile">UV</th>
+            <th scope="col">{t('label.day')}</th>
+            <th scope="col">{t('label.cond')}</th>
+            <th scope="col" className="num">{t('label.lo')}</th>
+            <th scope="col" className="num">{t('label.hi')}</th>
+            <th scope="col" className="num">{t('label.rain')}</th>
+            <th scope="col" className="num hide-mobile">{t('label.uv')}</th>
           </tr>
         </thead>
         <tbody>
@@ -40,7 +42,7 @@ const ForecastTile = ({ days, settings }) => {
               <tr key={fd.date} className={i === selected ? 'is-selected' : ''} onClick={() => setSelected(i)}>
                 <th scope="row">
                   <button type="button" className="fc-day" onClick={() => setSelected(i)} aria-pressed={i === selected}>
-                    {dayStamp(fd.date)}
+                    {dayStamp(fd.date, { days: dayNames })}
                   </button>
                 </th>
                 <td>
@@ -59,12 +61,12 @@ const ForecastTile = ({ days, settings }) => {
         </tbody>
       </table>
       <div className="fc-detail" aria-live="polite">
-        <KeyValue label="Rise" value={formatTime(detail.astro?.sunrise, settings.hourFormat)} />
-        <KeyValue label="Set" value={formatTime(detail.astro?.sunset, settings.hourFormat)} />
-        <KeyValue label="Max wind" value={`${Math.round(speedValue(detail.day.maxwind_kph ?? 0, settings.speedUnit))} ${speedLabel(settings.speedUnit)}`} />
-        <KeyValue label="Precip" value={`${fixed1(detail.day.totalprecip_mm ?? 0)} mm`} />
-        <KeyValue label="Humidity" value={`${detail.day.avghumidity ?? '--'}%`} />
-        <KeyValue label="Moon" value={`${moonAbbreviation(detail.astro?.moon_phase)} ${moonIllumination != null ? `${Math.round(moonIllumination)}%` : ''}`.trim()} />
+        <KeyValue label={t('label.rise')} value={formatTime(detail.astro?.sunrise, settings.hourFormat)} />
+        <KeyValue label={t('label.set')} value={formatTime(detail.astro?.sunset, settings.hourFormat)} />
+        <KeyValue label={t('label.maxWind')} value={`${Math.round(speedValue(detail.day.maxwind_kph ?? 0, settings.speedUnit))} ${speedLabel(settings.speedUnit)}`} />
+        <KeyValue label={t('label.precip')} value={`${fixed1(detail.day.totalprecip_mm ?? 0)} mm`} />
+        <KeyValue label={t('label.humidity')} value={`${detail.day.avghumidity ?? '--'}%`} />
+        <KeyValue label={t('label.moon')} value={`${moonAbbreviation(detail.astro?.moon_phase)} ${moonIllumination != null ? `${Math.round(moonIllumination)}%` : ''}`.trim()} />
       </div>
     </Tile>
   )

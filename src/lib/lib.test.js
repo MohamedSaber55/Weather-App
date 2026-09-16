@@ -1,12 +1,12 @@
-import { aqiLevel, moonAbbreviation, moonIsWaning, shortCondition, uvProtection } from './conditions';
+import { aqiLevel, moonAbbreviation, moonIsWaning, shortCondition, uvProtectionKey } from './conditions';
 import { addMinutes, clockHours, coordsLabel, dateStamp, dayStamp, utcOffsetLabel } from './units';
 import { countryCode } from './countries';
 
 describe('air quality', () => {
   test('maps the US EPA category 1-6, not a 0-500 index', () => {
-    expect(aqiLevel(1).label).toBe('Good');
-    expect(aqiLevel(2).label).toBe('Moderate');
-    expect(aqiLevel(6).label).toBe('Hazardous');
+    expect(aqiLevel(1).key).toBe('aqi.1');
+    expect(aqiLevel(2).key).toBe('aqi.2');
+    expect(aqiLevel(6).key).toBe('aqi.6');
   });
 
   test('clamps values outside the 1-6 range', () => {
@@ -45,8 +45,8 @@ describe('formatting helpers', () => {
     expect(moonAbbreviation('Waxing Crescent')).toBe('WXC');
     expect(moonIsWaning('Waning Gibbous')).toBe(true);
     expect(moonIsWaning('Waxing Crescent')).toBe(false);
-    expect(uvProtection(9)).toMatch(/SPF 50/);
-    expect(uvProtection(1)).toBe('None needed');
+    expect(uvProtectionKey(9)).toBe('uvProtect.spf50midday');
+    expect(uvProtectionKey(1)).toBe('uvProtect.none');
   });
 
   test('turns country names into ISO codes', () => {
