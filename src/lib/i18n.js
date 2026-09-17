@@ -234,6 +234,7 @@ const STRINGS = {
     'comfort.humid': 'Moderately humid — comfortable but a little sticky.',
     'comfort.fine': 'Comfortable humidity levels.',
 
+    'moon.Moon': 'Moon',
     'moon.New Moon': 'New moon',
     'moon.Waxing Crescent': 'Waxing crescent',
     'moon.First Quarter': 'First quarter',
@@ -475,6 +476,7 @@ const STRINGS = {
     'comfort.humid': 'رطوبة متوسطة — مريحة لكن لزجة قليلًا.',
     'comfort.fine': 'مستويات رطوبة مريحة.',
 
+    'moon.Moon': 'القمر',
     'moon.New Moon': 'محاق',
     'moon.Waxing Crescent': 'هلال متزايد',
     'moon.First Quarter': 'التربيع الأول',
